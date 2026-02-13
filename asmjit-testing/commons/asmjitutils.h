@@ -43,6 +43,9 @@ static const char* asmjit_arch_as_string(asmjit::Arch arch) noexcept {
     case asmjit::Arch::kMIPS32_BE : return "MIPS_BE";
     case asmjit::Arch::kMIPS64_BE : return "MIPS64_BE";
 
+    case asmjit::Arch::kPPC64_LE  : return "PPC64_LE";
+    case asmjit::Arch::kPPC64_BE  : return "PPC64_BE";
+
     default:
       return "<Unknown>";
   }
