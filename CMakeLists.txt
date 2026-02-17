@@ -71,6 +71,7 @@ option(ASMJIT_NO_ABI_NAMESPACE "Disable the use of inline ABI namespace {asmjit:
 option(ASMJIT_NO_SHM_OPEN      "Disable the use of shm_open() (some platforms have better options)" OFF)
 option(ASMJIT_NO_X86           "Disable X86/X64 backend" OFF)
 option(ASMJIT_NO_AARCH64       "Disable AArch64 backend" OFF)
+option(ASMJIT_NO_PPC64         "Disable PPC64 backend" OFF)
 option(ASMJIT_NO_FOREIGN       "Disable all foreign backends (enables only a backend that matches the target)" OFF)
 option(ASMJIT_NO_JIT           "Disable VirtMem, JitAllocator, and JitRuntime at build time" OFF)
 option(ASMJIT_NO_TEXT          "Disable textual representation of instructions, enums, cpu features, ..." OFF)
@@ -250,6 +251,10 @@ set(ASMJIT_SRC
   asmjit/arm/a64operand.h
   asmjit/arm/a64rapass.cpp
   asmjit/arm/a64rapass_p.h
+
+  asmjit/ppc64.h
+  asmjit/ppc/ppc64operand.cpp
+  asmjit/ppc/ppc64operand.h
 
   asmjit/x86.h
   asmjit/x86/x86archtraits_p.h
@@ -509,6 +514,7 @@ endif()
 
 foreach(build_option ASMJIT_NO_X86
                      ASMJIT_NO_AARCH64
+                     ASMJIT_NO_PPC64
                      ASMJIT_NO_FOREIGN
                      ASMJIT_NO_ABI_NAMESPACE
                      ASMJIT_NO_JIT

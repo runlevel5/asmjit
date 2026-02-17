@@ -108,6 +108,12 @@
 #define ASMJIT_NO_AARCH64
 #undef ASMJIT_NO_AARCH64
 
+//! \def ASMJIT_NO_PPC64
+//!
+//! Disables PPC64 backend.
+#define ASMJIT_NO_PPC64
+#undef ASMJIT_NO_PPC64
+
 //! \def ASMJIT_NO_SHM_OPEN
 //!
 //! Disables the use of `shm_open` on all targets even when it's supported.
@@ -319,6 +325,10 @@
 
     #if ASMJIT_ARCH_ARM != 64 && !defined(ASMJIT_NO_AARCH64)
       #define ASMJIT_NO_AARCH64
+    #endif
+
+    #if ASMJIT_ARCH_PPC != 64 && !defined(ASMJIT_NO_PPC64)
+      #define ASMJIT_NO_PPC64
     #endif
   #endif
 
