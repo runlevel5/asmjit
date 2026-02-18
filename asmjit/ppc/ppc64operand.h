@@ -28,7 +28,9 @@ public:
     //! TOC pointer register id.
     kIdToc = 2,
     //! Thread pointer register id.
-    kIdThread = 13
+    kIdThread = 13,
+    //! Frame pointer register id (PPC64 has no dedicated frame pointer, R31 is used by convention).
+    kIdFp = 31
   };
 
   //! \}

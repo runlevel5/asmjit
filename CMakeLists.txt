@@ -253,6 +253,7 @@ set(ASMJIT_SRC
   asmjit/arm/a64rapass_p.h
 
   asmjit/ppc64.h
+  asmjit/ppc/ppc64archtraits_p.h
   asmjit/ppc/ppc64operand.cpp
   asmjit/ppc/ppc64operand.h
 

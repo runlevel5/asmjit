@@ -29,6 +29,7 @@ UNIT(ppc64_operand) {
   EXPECT_EQ(r1.id(), Gp::kIdSp);
   EXPECT_EQ(r2.id(), Gp::kIdToc);
   EXPECT_EQ(r13.id(), Gp::kIdThread);
+  EXPECT_EQ(r31.id(), Gp::kIdFp);
   EXPECT_EQ(r0.size(), 8u);
   EXPECT_EQ(r0.reg_type(), RegType::kGp64);
   EXPECT_EQ(r0.reg_group(), RegGroup::kGp);
