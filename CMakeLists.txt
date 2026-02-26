@@ -254,6 +254,13 @@ set(ASMJIT_SRC
 
   asmjit/ppc64.h
   asmjit/ppc/ppc64archtraits_p.h
+  asmjit/ppc/ppc64assembler.cpp
+  asmjit/ppc/ppc64assembler.h
+  asmjit/ppc/ppc64emitter.h
+  asmjit/ppc/ppc64globals.h
+  asmjit/ppc/ppc64instdb.cpp
+  asmjit/ppc/ppc64instdb.h
+  asmjit/ppc/ppc64instdb_p.h
   asmjit/ppc/ppc64operand.cpp
   asmjit/ppc/ppc64operand.h
 
@@ -625,6 +632,7 @@ else()
       SOURCES    asmjit-testing/tests/asmjit_test_assembler.cpp
                  asmjit-testing/tests/asmjit_test_assembler.h
                  asmjit-testing/tests/asmjit_test_assembler_a64.cpp
+                 asmjit-testing/tests/asmjit_test_assembler_ppc64.cpp
                  asmjit-testing/tests/asmjit_test_assembler_x64.cpp
                  asmjit-testing/tests/asmjit_test_assembler_x86.cpp
       LIBRARIES  asmjit::asmjit

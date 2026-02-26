@@ -24,6 +24,10 @@ bool test_x64_assembler(const TestSettings& settings) noexcept;
 bool test_aarch64_assembler(const TestSettings& settings) noexcept;
 #endif
 
+#if !defined(ASMJIT_NO_PPC64)
+bool test_ppc64_assembler(const TestSettings& settings) noexcept;
+#endif
+
 static void print_app_info() noexcept {
   printf("AsmJit Assembler Test-Suite v%u.%u.%u [Arch=%s] [Mode=%s]\n\n",
     unsigned((ASMJIT_LIBRARY_VERSION >> 16)       ),
@@ -50,6 +54,9 @@ static void print_app_usage(const TestSettings& settings) noexcept {
 #if !defined(ASMJIT_NO_AARCH64)
   printf("  --arch=aarch64 64-bit ARM architecture (AArch64)\n");
 #endif
+#if !defined(ASMJIT_NO_PPC64)
+  printf("  --arch=ppc64   64-bit PowerPC architecture (PPC64)\n");
+#endif
   printf("\n");
 }
 
@@ -71,6 +78,7 @@ int main(int argc, char* argv[]) {
   bool x86_failed = false;
   bool x64_failed = false;
   bool aarch64_failed = false;
+  bool ppc64_failed = false;
 
 #if !defined(ASMJIT_NO_X86)
   if ((strcmp(arch, "all") == 0 || strcmp(arch, "x86") == 0))
@@ -85,7 +93,12 @@ int main(int argc, char* argv[]) {
     aarch64_failed = !test_aarch64_assembler(settings);
 #endif
 
-  bool failed = x86_failed || x64_failed || aarch64_failed;
+#if !defined(ASMJIT_NO_PPC64)
+  if ((strcmp(arch, "all") == 0 || strcmp(arch, "ppc64") == 0))
+    ppc64_failed = !test_ppc64_assembler(settings);
+#endif
+
+  bool failed = x86_failed || x64_failed || aarch64_failed || ppc64_failed;
 
   if (failed) {
     if (x86_failed)
@@ -96,6 +109,9 @@ int main(int argc, char* argv[]) {
 
     if (aarch64_failed)
       printf("** AArch64 test suite failed **\n");
+
+    if (ppc64_failed)
+      printf("** PPC64 test suite failed **\n");
 
     printf("** FAILURE **\n");
   }
