@@ -257,7 +257,11 @@ set(ASMJIT_SRC
   asmjit/ppc/ppc64assembler.cpp
   asmjit/ppc/ppc64assembler.h
   asmjit/ppc/ppc64emitter.h
+  asmjit/ppc/ppc64formatter.cpp
+  asmjit/ppc/ppc64formatter_p.h
   asmjit/ppc/ppc64globals.h
+  asmjit/ppc/ppc64instapi.cpp
+  asmjit/ppc/ppc64instapi_p.h
   asmjit/ppc/ppc64instdb.cpp
   asmjit/ppc/ppc64instdb.h
   asmjit/ppc/ppc64instdb_p.h

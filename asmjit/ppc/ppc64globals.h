@@ -25,7 +25,7 @@ ASMJIT_BEGIN_SUB_NAMESPACE(ppc)
 namespace Inst {
   //! Instruction id.
   //!
-  //! \note The order must match the instruction table in `ppc64instdb.cpp`.
+  //! \note The order must match the instruction list in `ppc64instdb.cpp`.
   enum Id : uint32_t {
     kIdNone = 0,                         //!< Instruction ''.
     kIdAdd,                              //!< Instruction 'add'.

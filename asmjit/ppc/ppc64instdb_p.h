@@ -40,6 +40,14 @@ enum EncodingId : uint32_t {
   kEncodingBoBiBh
 };
 
+#ifndef ASMJIT_NO_TEXT
+//! Maximum length of an instruction name (without a null terminator).
+static constexpr uint32_t kMaxInstNameSize = 11;
+
+//! Instruction names indexed by instruction id.
+extern const char _inst_name_table[][kMaxInstNameSize + 1u];
+#endif // !ASMJIT_NO_TEXT
+
 } // {InstDB}
 
 //! \}

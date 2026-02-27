@@ -13,6 +13,7 @@
 #include <asmjit/core/misc_p.h>
 #include <asmjit/support/support.h>
 #include <asmjit/ppc/ppc64assembler.h>
+#include <asmjit/ppc/ppc64formatter_p.h>
 #include <asmjit/ppc/ppc64instdb_p.h>
 
 ASMJIT_BEGIN_SUB_NAMESPACE(ppc)
@@ -30,23 +31,6 @@ static ASMJIT_INLINE_NODEBUG bool is_phys_id(uint32_t id0, uint32_t id1 = 0, uin
   return (id0 | id1 | id2) <= 31u;
 }
 
-// ppc::Assembler - Formatting
-// ===========================
-
-#ifndef ASMJIT_NO_LOGGING
-// The backend doesn't have a formatter yet, so only the instruction id is formatted.
-static Error ASMJIT_CDECL format_instruction(
-  String& sb,
-  FormatFlags format_flags,
-  const BaseEmitter* emitter,
-  Arch arch,
-  const BaseInst& inst, Span<const Operand_> operands) noexcept {
-
-  Support::maybe_unused(format_flags, emitter, arch, operands);
-  return sb.append_format("<ppc64 inst #%u>", unsigned(inst.inst_id()));
-}
-#endif
-
 // ppc::Assembler - Construction & Destruction
 // ===========================================
 
@@ -55,7 +39,7 @@ Assembler::Assembler(CodeHolder* code) noexcept : BaseAssembler() {
                (uint64_t(1) << uint32_t(Arch::kPPC64_BE)) ;
 
 #ifndef ASMJIT_NO_LOGGING
-  _funcs.format_instruction = format_instruction;
+  _funcs.format_instruction = FormatterInternal::format_instruction;
 #endif
 
   if (code) {
