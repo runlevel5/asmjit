@@ -26,8 +26,14 @@ enum EncodingId : uint32_t {
 
   //! `inst RT, RA, RB` - three general purpose registers.
   kEncodingRtRaRb,
-  //! `inst RT, RA, SI` - RA cannot be R0 (the instruction would read it as zero), SI is a signed 16-bit immediate.
+  //! `inst RT, RA` - two general purpose registers.
+  kEncodingRtRa,
+  //! `inst RT, RA, SI` - SI is a signed 16-bit immediate.
   kEncodingRtRaSi,
+  //! `inst RT, RA, SI` - RA cannot be R0 (the instruction would read it as zero), SI is a signed 16-bit immediate.
+  kEncodingRtRaSiNoR0,
+  //! `inst RT, SI` - SI is a signed 16-bit immediate.
+  kEncodingRtSi,
   //! `inst RA, RS, UI` - UI is an unsigned 16-bit immediate.
   kEncodingRaRsUi,
   //! `inst RT|RS, DS(RA)` - load or store, DS is a signed 16-bit displacement that must be a multiple of 4.

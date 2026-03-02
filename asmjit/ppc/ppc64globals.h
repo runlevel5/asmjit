@@ -29,14 +29,99 @@ namespace Inst {
   enum Id : uint32_t {
     kIdNone = 0,                         //!< Instruction ''.
     kIdAdd,                              //!< Instruction 'add'.
+    kIdAdd_rc,                           //!< Instruction 'add.'.
+    kIdAddc,                             //!< Instruction 'addc'.
+    kIdAddc_rc,                          //!< Instruction 'addc.'.
+    kIdAddco,                            //!< Instruction 'addco'.
+    kIdAddco_rc,                         //!< Instruction 'addco.'.
+    kIdAdde,                             //!< Instruction 'adde'.
+    kIdAdde_rc,                          //!< Instruction 'adde.'.
+    kIdAddeo,                            //!< Instruction 'addeo'.
+    kIdAddeo_rc,                         //!< Instruction 'addeo.'.
     kIdAddi,                             //!< Instruction 'addi'.
+    kIdAddic,                            //!< Instruction 'addic'.
+    kIdAddic_rc,                         //!< Instruction 'addic.'.
     kIdAddis,                            //!< Instruction 'addis'.
+    kIdAddme,                            //!< Instruction 'addme'.
+    kIdAddme_rc,                         //!< Instruction 'addme.'.
+    kIdAddmeo,                           //!< Instruction 'addmeo'.
+    kIdAddmeo_rc,                        //!< Instruction 'addmeo.'.
+    kIdAddo,                             //!< Instruction 'addo'.
+    kIdAddo_rc,                          //!< Instruction 'addo.'.
+    kIdAddze,                            //!< Instruction 'addze'.
+    kIdAddze_rc,                         //!< Instruction 'addze.'.
+    kIdAddzeo,                           //!< Instruction 'addzeo'.
+    kIdAddzeo_rc,                        //!< Instruction 'addzeo.'.
     kIdBclr,                             //!< Instruction 'bclr'.
+    kIdDivd,                             //!< Instruction 'divd'.
+    kIdDivd_rc,                          //!< Instruction 'divd.'.
+    kIdDivdo,                            //!< Instruction 'divdo'.
+    kIdDivdo_rc,                         //!< Instruction 'divdo.'.
+    kIdDivdu,                            //!< Instruction 'divdu'.
+    kIdDivdu_rc,                         //!< Instruction 'divdu.'.
+    kIdDivduo,                           //!< Instruction 'divduo'.
+    kIdDivduo_rc,                        //!< Instruction 'divduo.'.
+    kIdDivw,                             //!< Instruction 'divw'.
+    kIdDivw_rc,                          //!< Instruction 'divw.'.
+    kIdDivwo,                            //!< Instruction 'divwo'.
+    kIdDivwo_rc,                         //!< Instruction 'divwo.'.
+    kIdDivwu,                            //!< Instruction 'divwu'.
+    kIdDivwu_rc,                         //!< Instruction 'divwu.'.
+    kIdDivwuo,                           //!< Instruction 'divwuo'.
+    kIdDivwuo_rc,                        //!< Instruction 'divwuo.'.
     kIdLd,                               //!< Instruction 'ld'.
+    kIdLi,                               //!< Instruction 'li'.
+    kIdLis,                              //!< Instruction 'lis'.
     kIdMfspr,                            //!< Instruction 'mfspr'.
+    kIdModsd,                            //!< Instruction 'modsd'.
+    kIdModsw,                            //!< Instruction 'modsw'.
+    kIdModud,                            //!< Instruction 'modud'.
+    kIdModuw,                            //!< Instruction 'moduw'.
     kIdMtspr,                            //!< Instruction 'mtspr'.
+    kIdMulhd,                            //!< Instruction 'mulhd'.
+    kIdMulhd_rc,                         //!< Instruction 'mulhd.'.
+    kIdMulhdu,                           //!< Instruction 'mulhdu'.
+    kIdMulhdu_rc,                        //!< Instruction 'mulhdu.'.
+    kIdMulhw,                            //!< Instruction 'mulhw'.
+    kIdMulhw_rc,                         //!< Instruction 'mulhw.'.
+    kIdMulhwu,                           //!< Instruction 'mulhwu'.
+    kIdMulhwu_rc,                        //!< Instruction 'mulhwu.'.
+    kIdMulld,                            //!< Instruction 'mulld'.
+    kIdMulld_rc,                         //!< Instruction 'mulld.'.
+    kIdMulldo,                           //!< Instruction 'mulldo'.
+    kIdMulldo_rc,                        //!< Instruction 'mulldo.'.
+    kIdMulli,                            //!< Instruction 'mulli'.
+    kIdMullw,                            //!< Instruction 'mullw'.
+    kIdMullw_rc,                         //!< Instruction 'mullw.'.
+    kIdMullwo,                           //!< Instruction 'mullwo'.
+    kIdMullwo_rc,                        //!< Instruction 'mullwo.'.
+    kIdNeg,                              //!< Instruction 'neg'.
+    kIdNeg_rc,                           //!< Instruction 'neg.'.
+    kIdNego,                             //!< Instruction 'nego'.
+    kIdNego_rc,                          //!< Instruction 'nego.'.
     kIdOri,                              //!< Instruction 'ori'.
     kIdStd,                              //!< Instruction 'std'.
+    kIdSubf,                             //!< Instruction 'subf'.
+    kIdSubf_rc,                          //!< Instruction 'subf.'.
+    kIdSubfc,                            //!< Instruction 'subfc'.
+    kIdSubfc_rc,                         //!< Instruction 'subfc.'.
+    kIdSubfco,                           //!< Instruction 'subfco'.
+    kIdSubfco_rc,                        //!< Instruction 'subfco.'.
+    kIdSubfe,                            //!< Instruction 'subfe'.
+    kIdSubfe_rc,                         //!< Instruction 'subfe.'.
+    kIdSubfeo,                           //!< Instruction 'subfeo'.
+    kIdSubfeo_rc,                        //!< Instruction 'subfeo.'.
+    kIdSubfic,                           //!< Instruction 'subfic'.
+    kIdSubfme,                           //!< Instruction 'subfme'.
+    kIdSubfme_rc,                        //!< Instruction 'subfme.'.
+    kIdSubfmeo,                          //!< Instruction 'subfmeo'.
+    kIdSubfmeo_rc,                       //!< Instruction 'subfmeo.'.
+    kIdSubfo,                            //!< Instruction 'subfo'.
+    kIdSubfo_rc,                         //!< Instruction 'subfo.'.
+    kIdSubfze,                           //!< Instruction 'subfze'.
+    kIdSubfze_rc,                        //!< Instruction 'subfze.'.
+    kIdSubfzeo,                          //!< Instruction 'subfzeo'.
+    kIdSubfzeo_rc,                       //!< Instruction 'subfzeo.'.
     _kIdCount
   };
 

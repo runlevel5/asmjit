@@ -124,14 +124,36 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
       break;
     }
 
-    case InstDB::kEncodingRtRaSi: {
+    case InstDB::kEncodingRtRa: {
+      if (isign4 == ENC_OPS2(Reg, Reg)) {
+        if (!is_gp64(o0) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= (o0.id() << 21) | (o1.id() << 16);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRtRaSi:
+    case InstDB::kEncodingRtRaSiNoR0: {
       if (isign4 == ENC_OPS3(Reg, Reg, Imm)) {
         if (!is_gp64(o0) || !is_gp64(o1)) {
           goto InvalidInstruction;
         }
 
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
         // R0 used as RA would be read as zero and not as a register.
-        if (!is_phys_id(o0.id(), o1.id()) || o1.id() == 0u) {
+        if (inst_info->_encoding == InstDB::kEncodingRtRaSiNoR0 && o1.id() == 0u) {
           goto InvalidPhysId;
         }
 
@@ -141,6 +163,28 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
         }
 
         opcode |= (o0.id() << 21) | (o1.id() << 16) | (uint32_t(imm) & 0xFFFFu);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRtSi: {
+      if (isign4 == ENC_OPS2(Reg, Imm)) {
+        if (!is_gp64(o0)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t imm = o1.as<Imm>().value();
+        if (!Support::is_int_n<16>(imm)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (o0.id() << 21) | (uint32_t(imm) & 0xFFFFu);
         goto EmitOp;
       }
 
