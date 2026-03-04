@@ -34,8 +34,24 @@ enum EncodingId : uint32_t {
   kEncodingRtRaSiNoR0,
   //! `inst RT, SI` - SI is a signed 16-bit immediate.
   kEncodingRtSi,
+  //! `inst RA, RS, RB` - three general purpose registers, the destination is RA.
+  kEncodingRaRsRb,
+  //! `inst RA, RS` - two general purpose registers, the destination is RA.
+  kEncodingRaRs,
   //! `inst RA, RS, UI` - UI is an unsigned 16-bit immediate.
   kEncodingRaRsUi,
+  //! `inst RA, RS, SH` - SH is a 5-bit shift amount.
+  kEncodingRaRsSh5,
+  //! `inst RA, RS, SH` - SH is a 6-bit shift amount.
+  kEncodingRaRsSh6,
+  //! `inst RA, RS, SH, MB|ME` - SH is a 6-bit shift amount, MB|ME is a 6-bit mask begin or mask end.
+  kEncodingRaRsSh6Mb6,
+  //! `inst RA, RS, RB, MB|ME` - MB|ME is a 6-bit mask begin or mask end.
+  kEncodingRaRsRbMb6,
+  //! `inst RA, RS, SH, MB, ME` - SH is a 5-bit shift amount, MB and ME are a 5-bit mask begin and mask end.
+  kEncodingRaRsSh5MbMe,
+  //! `inst RA, RS, RB, MB, ME` - MB and ME are a 5-bit mask begin and mask end.
+  kEncodingRaRsRbMbMe,
   //! `inst RT|RS, DS(RA)` - load or store, DS is a signed 16-bit displacement that must be a multiple of 4.
   kEncodingRtMemDs,
   //! `inst RT, SPR` - SPR is a special purpose register number.

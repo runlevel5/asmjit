@@ -61,6 +61,12 @@ Assembler::~Assembler() noexcept {}
   (uint32_t(OperandType::k##OP1) << 3) + \
   (uint32_t(OperandType::k##OP2) << 6))
 
+#define ENC_OPS4(OP0, OP1, OP2, OP3) \
+  (uint32_t(OperandType::k##OP0) + \
+  (uint32_t(OperandType::k##OP1) << 3) + \
+  (uint32_t(OperandType::k##OP2) << 6) + \
+  (uint32_t(OperandType::k##OP3) << 9))
+
 Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, const Operand_& o2, const Operand_* op_ext) {
   // Logging/Validation/Error.
   constexpr InstOptions kRequiresSpecialHandling = InstOptions::kReserved;
@@ -191,6 +197,40 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
       break;
     }
 
+    case InstDB::kEncodingRaRsRb: {
+      if (isign4 == ENC_OPS3(Reg, Reg, Reg)) {
+        if (!is_gp64(o0) || !is_gp64(o1) || !is_gp64(o2)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id(), o2.id())) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= (o1.id() << 21) | (o0.id() << 16) | (o2.id() << 11);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRaRs: {
+      if (isign4 == ENC_OPS2(Reg, Reg)) {
+        if (!is_gp64(o0) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= (o1.id() << 21) | (o0.id() << 16);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
     case InstDB::kEncodingRaRsUi: {
       if (isign4 == ENC_OPS3(Reg, Reg, Imm)) {
         if (!is_gp64(o0) || !is_gp64(o1)) {
@@ -207,6 +247,138 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
         }
 
         opcode |= (o1.id() << 21) | (o0.id() << 16) | uint32_t(imm);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRaRsSh5:
+    case InstDB::kEncodingRaRsSh6: {
+      if (isign4 == ENC_OPS3(Reg, Reg, Imm)) {
+        if (!is_gp64(o0) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t sh = o2.as<Imm>().value();
+        opcode |= (o1.id() << 21) | (o0.id() << 16);
+
+        if (inst_info->_encoding == InstDB::kEncodingRaRsSh5) {
+          if (!Support::is_uint_n<5>(sh)) {
+            goto InvalidImmediate;
+          }
+
+          opcode |= uint32_t(sh) << 11;
+        }
+        else {
+          if (!Support::is_uint_n<6>(sh)) {
+            goto InvalidImmediate;
+          }
+
+          // The most significant bit of a 6-bit shift amount is stored separately.
+          opcode |= ((uint32_t(sh) & 0x1Fu) << 11) | ((uint32_t(sh) >> 5) << 1);
+        }
+
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRaRsSh6Mb6:
+    case InstDB::kEncodingRaRsRbMb6: {
+      bool has_rb = inst_info->_encoding == InstDB::kEncodingRaRsRbMb6;
+
+      if (isign4 == (has_rb ? ENC_OPS4(Reg, Reg, Reg, Imm) : ENC_OPS4(Reg, Reg, Imm, Imm))) {
+        if (!is_gp64(o0) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t mb = o3.as<Imm>().value();
+        if (!Support::is_uint_n<6>(mb)) {
+          goto InvalidImmediate;
+        }
+
+        // The most significant bit of a 6-bit mask begin (or mask end) is stored last.
+        opcode |= (o1.id() << 21) | (o0.id() << 16) | ((uint32_t(mb) & 0x1Fu) << 6) | ((uint32_t(mb) >> 5) << 5);
+
+        if (has_rb) {
+          if (!is_gp64(o2)) {
+            goto InvalidInstruction;
+          }
+
+          if (!is_phys_id(o2.id())) {
+            goto InvalidPhysId;
+          }
+
+          opcode |= o2.id() << 11;
+        }
+        else {
+          int64_t sh = o2.as<Imm>().value();
+          if (!Support::is_uint_n<6>(sh)) {
+            goto InvalidImmediate;
+          }
+
+          opcode |= ((uint32_t(sh) & 0x1Fu) << 11) | ((uint32_t(sh) >> 5) << 1);
+        }
+
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRaRsSh5MbMe:
+    case InstDB::kEncodingRaRsRbMbMe: {
+      bool has_rb = inst_info->_encoding == InstDB::kEncodingRaRsRbMbMe;
+      const Operand_& o4 = op_ext[EmitterUtils::kOp4];
+
+      if (isign4 == (has_rb ? ENC_OPS4(Reg, Reg, Reg, Imm) : ENC_OPS4(Reg, Reg, Imm, Imm)) && o4.is_imm()) {
+        if (!is_gp64(o0) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t mb = o3.as<Imm>().value();
+        int64_t me = o4.as<Imm>().value();
+
+        if (!Support::is_uint_n<5>(mb) || !Support::is_uint_n<5>(me)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (o1.id() << 21) | (o0.id() << 16) | (uint32_t(mb) << 6) | (uint32_t(me) << 1);
+
+        if (has_rb) {
+          if (!is_gp64(o2)) {
+            goto InvalidInstruction;
+          }
+
+          if (!is_phys_id(o2.id())) {
+            goto InvalidPhysId;
+          }
+
+          opcode |= o2.id() << 11;
+        }
+        else {
+          int64_t sh = o2.as<Imm>().value();
+          if (!Support::is_uint_n<5>(sh)) {
+            goto InvalidImmediate;
+          }
+
+          opcode |= uint32_t(sh) << 11;
+        }
+
         goto EmitOp;
       }
 
@@ -352,6 +524,7 @@ Failed:
 
 #undef ENC_OPS2
 #undef ENC_OPS3
+#undef ENC_OPS4
 
 // ppc::Assembler - Align
 // ======================

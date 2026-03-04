@@ -52,7 +52,21 @@ namespace Inst {
     kIdAddze_rc,                         //!< Instruction 'addze.'.
     kIdAddzeo,                           //!< Instruction 'addzeo'.
     kIdAddzeo_rc,                        //!< Instruction 'addzeo.'.
+    kIdAnd,                              //!< Instruction 'and'.
+    kIdAnd_rc,                           //!< Instruction 'and.'.
+    kIdAndc,                             //!< Instruction 'andc'.
+    kIdAndc_rc,                          //!< Instruction 'andc.'.
+    kIdAndi_rc,                          //!< Instruction 'andi.'.
+    kIdAndis_rc,                         //!< Instruction 'andis.'.
     kIdBclr,                             //!< Instruction 'bclr'.
+    kIdCntlzd,                           //!< Instruction 'cntlzd'.
+    kIdCntlzd_rc,                        //!< Instruction 'cntlzd.'.
+    kIdCntlzw,                           //!< Instruction 'cntlzw'.
+    kIdCntlzw_rc,                        //!< Instruction 'cntlzw.'.
+    kIdCnttzd,                           //!< Instruction 'cnttzd'.
+    kIdCnttzd_rc,                        //!< Instruction 'cnttzd.'.
+    kIdCnttzw,                           //!< Instruction 'cnttzw'.
+    kIdCnttzw_rc,                        //!< Instruction 'cnttzw.'.
     kIdDivd,                             //!< Instruction 'divd'.
     kIdDivd_rc,                          //!< Instruction 'divd.'.
     kIdDivdo,                            //!< Instruction 'divdo'.
@@ -69,6 +83,14 @@ namespace Inst {
     kIdDivwu_rc,                         //!< Instruction 'divwu.'.
     kIdDivwuo,                           //!< Instruction 'divwuo'.
     kIdDivwuo_rc,                        //!< Instruction 'divwuo.'.
+    kIdEqv,                              //!< Instruction 'eqv'.
+    kIdEqv_rc,                           //!< Instruction 'eqv.'.
+    kIdExtsb,                            //!< Instruction 'extsb'.
+    kIdExtsb_rc,                         //!< Instruction 'extsb.'.
+    kIdExtsh,                            //!< Instruction 'extsh'.
+    kIdExtsh_rc,                         //!< Instruction 'extsh.'.
+    kIdExtsw,                            //!< Instruction 'extsw'.
+    kIdExtsw_rc,                         //!< Instruction 'extsw.'.
     kIdLd,                               //!< Instruction 'ld'.
     kIdLi,                               //!< Instruction 'li'.
     kIdLis,                              //!< Instruction 'lis'.
@@ -95,11 +117,57 @@ namespace Inst {
     kIdMullw_rc,                         //!< Instruction 'mullw.'.
     kIdMullwo,                           //!< Instruction 'mullwo'.
     kIdMullwo_rc,                        //!< Instruction 'mullwo.'.
+    kIdNand,                             //!< Instruction 'nand'.
+    kIdNand_rc,                          //!< Instruction 'nand.'.
     kIdNeg,                              //!< Instruction 'neg'.
     kIdNeg_rc,                           //!< Instruction 'neg.'.
     kIdNego,                             //!< Instruction 'nego'.
     kIdNego_rc,                          //!< Instruction 'nego.'.
+    kIdNor,                              //!< Instruction 'nor'.
+    kIdNor_rc,                           //!< Instruction 'nor.'.
+    kIdOr,                               //!< Instruction 'or'.
+    kIdOr_rc,                            //!< Instruction 'or.'.
+    kIdOrc,                              //!< Instruction 'orc'.
+    kIdOrc_rc,                           //!< Instruction 'orc.'.
     kIdOri,                              //!< Instruction 'ori'.
+    kIdOris,                             //!< Instruction 'oris'.
+    kIdPopcntb,                          //!< Instruction 'popcntb'.
+    kIdPopcntd,                          //!< Instruction 'popcntd'.
+    kIdPopcntw,                          //!< Instruction 'popcntw'.
+    kIdRldcl,                            //!< Instruction 'rldcl'.
+    kIdRldcl_rc,                         //!< Instruction 'rldcl.'.
+    kIdRldcr,                            //!< Instruction 'rldcr'.
+    kIdRldcr_rc,                         //!< Instruction 'rldcr.'.
+    kIdRldic,                            //!< Instruction 'rldic'.
+    kIdRldic_rc,                         //!< Instruction 'rldic.'.
+    kIdRldicl,                           //!< Instruction 'rldicl'.
+    kIdRldicl_rc,                        //!< Instruction 'rldicl.'.
+    kIdRldicr,                           //!< Instruction 'rldicr'.
+    kIdRldicr_rc,                        //!< Instruction 'rldicr.'.
+    kIdRldimi,                           //!< Instruction 'rldimi'.
+    kIdRldimi_rc,                        //!< Instruction 'rldimi.'.
+    kIdRlwimi,                           //!< Instruction 'rlwimi'.
+    kIdRlwimi_rc,                        //!< Instruction 'rlwimi.'.
+    kIdRlwinm,                           //!< Instruction 'rlwinm'.
+    kIdRlwinm_rc,                        //!< Instruction 'rlwinm.'.
+    kIdRlwnm,                            //!< Instruction 'rlwnm'.
+    kIdRlwnm_rc,                         //!< Instruction 'rlwnm.'.
+    kIdSld,                              //!< Instruction 'sld'.
+    kIdSld_rc,                           //!< Instruction 'sld.'.
+    kIdSlw,                              //!< Instruction 'slw'.
+    kIdSlw_rc,                           //!< Instruction 'slw.'.
+    kIdSrad,                             //!< Instruction 'srad'.
+    kIdSrad_rc,                          //!< Instruction 'srad.'.
+    kIdSradi,                            //!< Instruction 'sradi'.
+    kIdSradi_rc,                         //!< Instruction 'sradi.'.
+    kIdSraw,                             //!< Instruction 'sraw'.
+    kIdSraw_rc,                          //!< Instruction 'sraw.'.
+    kIdSrawi,                            //!< Instruction 'srawi'.
+    kIdSrawi_rc,                         //!< Instruction 'srawi.'.
+    kIdSrd,                              //!< Instruction 'srd'.
+    kIdSrd_rc,                           //!< Instruction 'srd.'.
+    kIdSrw,                              //!< Instruction 'srw'.
+    kIdSrw_rc,                           //!< Instruction 'srw.'.
     kIdStd,                              //!< Instruction 'std'.
     kIdSubf,                             //!< Instruction 'subf'.
     kIdSubf_rc,                          //!< Instruction 'subf.'.
@@ -122,6 +190,10 @@ namespace Inst {
     kIdSubfze_rc,                        //!< Instruction 'subfze.'.
     kIdSubfzeo,                          //!< Instruction 'subfzeo'.
     kIdSubfzeo_rc,                       //!< Instruction 'subfzeo.'.
+    kIdXor,                              //!< Instruction 'xor'.
+    kIdXor_rc,                           //!< Instruction 'xor.'.
+    kIdXori,                             //!< Instruction 'xori'.
+    kIdXoris,                            //!< Instruction 'xoris'.
     _kIdCount
   };
 
