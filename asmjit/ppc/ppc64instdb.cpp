@@ -86,9 +86,42 @@ namespace InstDB {
   X(Extsh_rc    , "extsh."     , 0x7C000735u, RaRs        )  \
   X(Extsw       , "extsw"      , 0x7C0007B4u, RaRs        )  \
   X(Extsw_rc    , "extsw."     , 0x7C0007B5u, RaRs        )  \
+  X(Lbarx       , "lbarx"      , 0x7C000068u, RtMemX      )  \
+  X(Lbz         , "lbz"        , 0x88000000u, RtMemD      )  \
+  X(Lbzu        , "lbzu"       , 0x8C000000u, RtMemDLu    )  \
+  X(Lbzux       , "lbzux"      , 0x7C0000EEu, RtMemXLu    )  \
+  X(Lbzx        , "lbzx"       , 0x7C0000AEu, RtMemX      )  \
   X(Ld          , "ld"         , 0xE8000000u, RtMemDs     )  \
+  X(Ldarx       , "ldarx"      , 0x7C0000A8u, RtMemX      )  \
+  X(Ldbrx       , "ldbrx"      , 0x7C000428u, RtMemX      )  \
+  X(Ldu         , "ldu"        , 0xE8000001u, RtMemDsLu   )  \
+  X(Ldux        , "ldux"       , 0x7C00006Au, RtMemXLu    )  \
+  X(Ldx         , "ldx"        , 0x7C00002Au, RtMemX      )  \
+  X(Lfd         , "lfd"        , 0xC8000000u, FtMemD      )  \
+  X(Lfdx        , "lfdx"       , 0x7C0004AEu, FtMemX      )  \
+  X(Lfs         , "lfs"        , 0xC0000000u, FtMemD      )  \
+  X(Lfsx        , "lfsx"       , 0x7C00042Eu, FtMemX      )  \
+  X(Lha         , "lha"        , 0xA8000000u, RtMemD      )  \
+  X(Lharx       , "lharx"      , 0x7C0000E8u, RtMemX      )  \
+  X(Lhau        , "lhau"       , 0xAC000000u, RtMemDLu    )  \
+  X(Lhaux       , "lhaux"      , 0x7C0002EEu, RtMemXLu    )  \
+  X(Lhax        , "lhax"       , 0x7C0002AEu, RtMemX      )  \
+  X(Lhbrx       , "lhbrx"      , 0x7C00062Cu, RtMemX      )  \
+  X(Lhz         , "lhz"        , 0xA0000000u, RtMemD      )  \
+  X(Lhzu        , "lhzu"       , 0xA4000000u, RtMemDLu    )  \
+  X(Lhzux       , "lhzux"      , 0x7C00026Eu, RtMemXLu    )  \
+  X(Lhzx        , "lhzx"       , 0x7C00022Eu, RtMemX      )  \
   X(Li          , "li"         , 0x38000000u, RtSi        )  \
   X(Lis         , "lis"        , 0x3C000000u, RtSi        )  \
+  X(Lwa         , "lwa"        , 0xE8000002u, RtMemDs     )  \
+  X(Lwarx       , "lwarx"      , 0x7C000028u, RtMemX      )  \
+  X(Lwaux       , "lwaux"      , 0x7C0002EAu, RtMemXLu    )  \
+  X(Lwax        , "lwax"       , 0x7C0002AAu, RtMemX      )  \
+  X(Lwbrx       , "lwbrx"      , 0x7C00042Cu, RtMemX      )  \
+  X(Lwz         , "lwz"        , 0x80000000u, RtMemD      )  \
+  X(Lwzu        , "lwzu"       , 0x84000000u, RtMemDLu    )  \
+  X(Lwzux       , "lwzux"      , 0x7C00006Eu, RtMemXLu    )  \
+  X(Lwzx        , "lwzx"       , 0x7C00002Eu, RtMemX      )  \
   X(Mfspr       , "mfspr"      , 0x7C0002A6u, RtSpr       )  \
   X(Modsd       , "modsd"      , 0x7C000612u, RtRaRb      )  \
   X(Modsw       , "modsw"      , 0x7C000616u, RtRaRb      )  \
@@ -163,7 +196,33 @@ namespace InstDB {
   X(Srd_rc      , "srd."       , 0x7C000437u, RaRsRb      )  \
   X(Srw         , "srw"        , 0x7C000430u, RaRsRb      )  \
   X(Srw_rc      , "srw."       , 0x7C000431u, RaRsRb      )  \
+  X(Stb         , "stb"        , 0x98000000u, RtMemD      )  \
+  X(Stbcx_rc    , "stbcx."     , 0x7C00056Du, RtMemX      )  \
+  X(Stbu        , "stbu"       , 0x9C000000u, RtMemD      )  \
+  X(Stbux       , "stbux"      , 0x7C0001EEu, RtMemX      )  \
+  X(Stbx        , "stbx"       , 0x7C0001AEu, RtMemX      )  \
   X(Std         , "std"        , 0xF8000000u, RtMemDs     )  \
+  X(Stdbrx      , "stdbrx"     , 0x7C000528u, RtMemX      )  \
+  X(Stdcx_rc    , "stdcx."     , 0x7C0001ADu, RtMemX      )  \
+  X(Stdu        , "stdu"       , 0xF8000001u, RtMemDs     )  \
+  X(Stdux       , "stdux"      , 0x7C00016Au, RtMemX      )  \
+  X(Stdx        , "stdx"       , 0x7C00012Au, RtMemX      )  \
+  X(Stfd        , "stfd"       , 0xD8000000u, FtMemD      )  \
+  X(Stfdx       , "stfdx"      , 0x7C0005AEu, FtMemX      )  \
+  X(Stfs        , "stfs"       , 0xD0000000u, FtMemD      )  \
+  X(Stfsx       , "stfsx"      , 0x7C00052Eu, FtMemX      )  \
+  X(Sth         , "sth"        , 0xB0000000u, RtMemD      )  \
+  X(Sthbrx      , "sthbrx"     , 0x7C00072Cu, RtMemX      )  \
+  X(Sthcx_rc    , "sthcx."     , 0x7C0005ADu, RtMemX      )  \
+  X(Sthu        , "sthu"       , 0xB4000000u, RtMemD      )  \
+  X(Sthux       , "sthux"      , 0x7C00036Eu, RtMemX      )  \
+  X(Sthx        , "sthx"       , 0x7C00032Eu, RtMemX      )  \
+  X(Stw         , "stw"        , 0x90000000u, RtMemD      )  \
+  X(Stwbrx      , "stwbrx"     , 0x7C00052Cu, RtMemX      )  \
+  X(Stwcx_rc    , "stwcx."     , 0x7C00012Du, RtMemX      )  \
+  X(Stwu        , "stwu"       , 0x94000000u, RtMemD      )  \
+  X(Stwux       , "stwux"      , 0x7C00016Eu, RtMemX      )  \
+  X(Stwx        , "stwx"       , 0x7C00012Eu, RtMemX      )  \
   X(Subf        , "subf"       , 0x7C000050u, RtRaRb      )  \
   X(Subf_rc     , "subf."      , 0x7C000051u, RtRaRb      )  \
   X(Subfc       , "subfc"      , 0x7C000010u, RtRaRb      )  \

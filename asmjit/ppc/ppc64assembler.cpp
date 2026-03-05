@@ -385,15 +385,28 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
       break;
     }
 
-    case InstDB::kEncodingRtMemDs: {
+    case InstDB::kEncodingRtMemD:
+    case InstDB::kEncodingRtMemDLu:
+    case InstDB::kEncodingRtMemDs:
+    case InstDB::kEncodingRtMemDsLu:
+    case InstDB::kEncodingRtMemX:
+    case InstDB::kEncodingRtMemXLu:
+    case InstDB::kEncodingFtMemD:
+    case InstDB::kEncodingFtMemX: {
       if (isign4 == ENC_OPS2(Reg, Mem)) {
+        uint32_t encoding = inst_info->_encoding;
         const Mem& m = o1.as<Mem>();
 
-        if (!is_gp64(o0)) {
+        bool is_fp = encoding == InstDB::kEncodingFtMemD || encoding == InstDB::kEncodingFtMemX;
+        bool is_indexed = encoding == InstDB::kEncodingRtMemX || encoding == InstDB::kEncodingRtMemXLu || encoding == InstDB::kEncodingFtMemX;
+        bool is_ds = encoding == InstDB::kEncodingRtMemDs || encoding == InstDB::kEncodingRtMemDsLu;
+        bool is_load_update = encoding == InstDB::kEncodingRtMemDLu || encoding == InstDB::kEncodingRtMemDsLu || encoding == InstDB::kEncodingRtMemXLu;
+
+        if (is_fp ? !o0.as<Reg>().is_vec64() : !is_gp64(o0)) {
           goto InvalidInstruction;
         }
 
-        if (!m.has_base_reg() || m.base_type() != RegType::kGp64 || m.has_index()) {
+        if (!m.has_base_reg() || m.base_type() != RegType::kGp64) {
           goto InvalidAddress;
         }
 
@@ -406,12 +419,37 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
           goto InvalidAddress;
         }
 
-        int64_t disp = m.offset();
-        if (!Support::is_int_n<16>(disp) || (disp & 0x3) != 0) {
-          goto InvalidDisplacement;
+        // A load that updates its base register cannot load into that register.
+        if (is_load_update && o0.id() == m.base_id()) {
+          goto OverlappedRegs;
         }
 
-        opcode |= (o0.id() << 21) | (m.base_id() << 16) | (uint32_t(disp) & 0xFFFCu);
+        opcode |= (o0.id() << 21) | (m.base_id() << 16);
+
+        if (is_indexed) {
+          if (!m.has_index() || m.index_type() != RegType::kGp64 || m.has_offset()) {
+            goto InvalidAddress;
+          }
+
+          if (!is_phys_id(m.index_id())) {
+            goto InvalidPhysId;
+          }
+
+          opcode |= m.index_id() << 11;
+        }
+        else {
+          if (m.has_index()) {
+            goto InvalidAddress;
+          }
+
+          int64_t disp = m.offset();
+          if (!Support::is_int_n<16>(disp) || (is_ds && (disp & 0x3) != 0)) {
+            goto InvalidDisplacement;
+          }
+
+          opcode |= uint32_t(disp) & (is_ds ? 0xFFFCu : 0xFFFFu);
+        }
+
         goto EmitOp;
       }
 
@@ -511,6 +549,7 @@ EmitOp:
   ERROR_HANDLER(InvalidImmediate)
   ERROR_HANDLER(InvalidInstruction)
   ERROR_HANDLER(InvalidPhysId)
+  ERROR_HANDLER(OverlappedRegs)
 #undef ERROR_HANDLER
 
 Failed:

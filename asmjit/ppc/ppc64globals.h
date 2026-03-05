@@ -91,9 +91,42 @@ namespace Inst {
     kIdExtsh_rc,                         //!< Instruction 'extsh.'.
     kIdExtsw,                            //!< Instruction 'extsw'.
     kIdExtsw_rc,                         //!< Instruction 'extsw.'.
+    kIdLbarx,                            //!< Instruction 'lbarx'.
+    kIdLbz,                              //!< Instruction 'lbz'.
+    kIdLbzu,                             //!< Instruction 'lbzu'.
+    kIdLbzux,                            //!< Instruction 'lbzux'.
+    kIdLbzx,                             //!< Instruction 'lbzx'.
     kIdLd,                               //!< Instruction 'ld'.
+    kIdLdarx,                            //!< Instruction 'ldarx'.
+    kIdLdbrx,                            //!< Instruction 'ldbrx'.
+    kIdLdu,                              //!< Instruction 'ldu'.
+    kIdLdux,                             //!< Instruction 'ldux'.
+    kIdLdx,                              //!< Instruction 'ldx'.
+    kIdLfd,                              //!< Instruction 'lfd'.
+    kIdLfdx,                             //!< Instruction 'lfdx'.
+    kIdLfs,                              //!< Instruction 'lfs'.
+    kIdLfsx,                             //!< Instruction 'lfsx'.
+    kIdLha,                              //!< Instruction 'lha'.
+    kIdLharx,                            //!< Instruction 'lharx'.
+    kIdLhau,                             //!< Instruction 'lhau'.
+    kIdLhaux,                            //!< Instruction 'lhaux'.
+    kIdLhax,                             //!< Instruction 'lhax'.
+    kIdLhbrx,                            //!< Instruction 'lhbrx'.
+    kIdLhz,                              //!< Instruction 'lhz'.
+    kIdLhzu,                             //!< Instruction 'lhzu'.
+    kIdLhzux,                            //!< Instruction 'lhzux'.
+    kIdLhzx,                             //!< Instruction 'lhzx'.
     kIdLi,                               //!< Instruction 'li'.
     kIdLis,                              //!< Instruction 'lis'.
+    kIdLwa,                              //!< Instruction 'lwa'.
+    kIdLwarx,                            //!< Instruction 'lwarx'.
+    kIdLwaux,                            //!< Instruction 'lwaux'.
+    kIdLwax,                             //!< Instruction 'lwax'.
+    kIdLwbrx,                            //!< Instruction 'lwbrx'.
+    kIdLwz,                              //!< Instruction 'lwz'.
+    kIdLwzu,                             //!< Instruction 'lwzu'.
+    kIdLwzux,                            //!< Instruction 'lwzux'.
+    kIdLwzx,                             //!< Instruction 'lwzx'.
     kIdMfspr,                            //!< Instruction 'mfspr'.
     kIdModsd,                            //!< Instruction 'modsd'.
     kIdModsw,                            //!< Instruction 'modsw'.
@@ -168,7 +201,33 @@ namespace Inst {
     kIdSrd_rc,                           //!< Instruction 'srd.'.
     kIdSrw,                              //!< Instruction 'srw'.
     kIdSrw_rc,                           //!< Instruction 'srw.'.
+    kIdStb,                              //!< Instruction 'stb'.
+    kIdStbcx_rc,                         //!< Instruction 'stbcx.'.
+    kIdStbu,                             //!< Instruction 'stbu'.
+    kIdStbux,                            //!< Instruction 'stbux'.
+    kIdStbx,                             //!< Instruction 'stbx'.
     kIdStd,                              //!< Instruction 'std'.
+    kIdStdbrx,                           //!< Instruction 'stdbrx'.
+    kIdStdcx_rc,                         //!< Instruction 'stdcx.'.
+    kIdStdu,                             //!< Instruction 'stdu'.
+    kIdStdux,                            //!< Instruction 'stdux'.
+    kIdStdx,                             //!< Instruction 'stdx'.
+    kIdStfd,                             //!< Instruction 'stfd'.
+    kIdStfdx,                            //!< Instruction 'stfdx'.
+    kIdStfs,                             //!< Instruction 'stfs'.
+    kIdStfsx,                            //!< Instruction 'stfsx'.
+    kIdSth,                              //!< Instruction 'sth'.
+    kIdSthbrx,                           //!< Instruction 'sthbrx'.
+    kIdSthcx_rc,                         //!< Instruction 'sthcx.'.
+    kIdSthu,                             //!< Instruction 'sthu'.
+    kIdSthux,                            //!< Instruction 'sthux'.
+    kIdSthx,                             //!< Instruction 'sthx'.
+    kIdStw,                              //!< Instruction 'stw'.
+    kIdStwbrx,                           //!< Instruction 'stwbrx'.
+    kIdStwcx_rc,                         //!< Instruction 'stwcx.'.
+    kIdStwu,                             //!< Instruction 'stwu'.
+    kIdStwux,                            //!< Instruction 'stwux'.
+    kIdStwx,                             //!< Instruction 'stwx'.
     kIdSubf,                             //!< Instruction 'subf'.
     kIdSubf_rc,                          //!< Instruction 'subf.'.
     kIdSubfc,                            //!< Instruction 'subfc'.

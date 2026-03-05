@@ -52,8 +52,22 @@ enum EncodingId : uint32_t {
   kEncodingRaRsSh5MbMe,
   //! `inst RA, RS, RB, MB, ME` - MB and ME are a 5-bit mask begin and mask end.
   kEncodingRaRsRbMbMe,
+  //! `inst RT|RS, D(RA)` - load or store, D is a signed 16-bit displacement.
+  kEncodingRtMemD,
+  //! `inst RT, D(RA)` - load that updates RA, which must not be RT.
+  kEncodingRtMemDLu,
   //! `inst RT|RS, DS(RA)` - load or store, DS is a signed 16-bit displacement that must be a multiple of 4.
   kEncodingRtMemDs,
+  //! `inst RT, DS(RA)` - load that updates RA, which must not be RT.
+  kEncodingRtMemDsLu,
+  //! `inst RT|RS, RA, RB` - indexed load or store.
+  kEncodingRtMemX,
+  //! `inst RT, RA, RB` - indexed load that updates RA, which must not be RT.
+  kEncodingRtMemXLu,
+  //! `inst FRT|FRS, D(RA)` - floating point load or store, D is a signed 16-bit displacement.
+  kEncodingFtMemD,
+  //! `inst FRT|FRS, RA, RB` - indexed floating point load or store.
+  kEncodingFtMemX,
   //! `inst RT, SPR` - SPR is a special purpose register number.
   kEncodingRtSpr,
   //! `inst SPR, RS` - SPR is a special purpose register number.
