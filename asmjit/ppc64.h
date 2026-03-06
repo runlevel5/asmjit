@@ -28,6 +28,7 @@
 //!
 //!   - \ref ppc::Gp - General purpose register (64-bit).
 //!   - \ref ppc::Vec - Floating point register (64-bit).
+//!   - \ref ppc::Cr - Condition register field.
 //!
 //! ### Memory Operands
 //!

@@ -34,6 +34,9 @@ ASMJIT_FAVOR_SIZE Error FormatterInternal::format_register(
     case RegType::kVec64:
       return sb.append_format("f%u", reg_id);
 
+    case RegType::kPPC_Cr:
+      return sb.append_format("cr%u", reg_id);
+
     default:
       return sb.append_format("<Reg-%u>?%u", uint32_t(reg_type), reg_id);
   }
@@ -196,6 +199,10 @@ UNIT(ppc64_formatter) {
   StringTmp<32> sb;
   EXPECT_EQ(Formatter::format_register(sb, kNoFlags, nullptr, Arch::kPPC64_BE, RegType::kVec64, 31), Error::kOk);
   EXPECT_EQ(sb, "f31");
+
+  sb.clear();
+  EXPECT_EQ(Formatter::format_register(sb, kNoFlags, nullptr, Arch::kPPC64_BE, RegType::kPPC_Cr, 7), Error::kOk);
+  EXPECT_EQ(sb, "cr7");
 
   INFO("Checking an instruction id that is not defined");
   test_format_instruction("[InstId=#0]", kNoFlags, Inst::kIdNone);

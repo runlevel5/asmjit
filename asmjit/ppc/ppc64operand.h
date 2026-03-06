@@ -99,6 +99,44 @@ public:
   //! \}
 };
 
+//! Condition register field (PPC64).
+//!
+//! The condition register consists of eight 4-bit fields (CR0-CR7). Compare instructions write their result to
+//! one field, conditional branches and few other instructions test a single bit of a field.
+class Cr : public Reg {
+public:
+  ASMJIT_DEFINE_FINAL_REG(Cr, Reg, RegTraits<RegType::kPPC_Cr>)
+
+  //! \name Condition Register Bits
+  //!
+  //! Each function returns the number of a bit within the whole condition register (0-31) as an immediate value,
+  //! which is how instructions that operate on condition register bits take it.
+  //!
+  //! \{
+
+  //! Returns the `LT` (less than, negative) bit of this field.
+  [[nodiscard]]
+  ASMJIT_INLINE_CONSTEXPR Imm lt() const noexcept { return Imm(id() * 4u + 0u); }
+
+  //! Returns the `GT` (greater than, positive) bit of this field.
+  [[nodiscard]]
+  ASMJIT_INLINE_CONSTEXPR Imm gt() const noexcept { return Imm(id() * 4u + 1u); }
+
+  //! Returns the `EQ` (equal, zero) bit of this field.
+  [[nodiscard]]
+  ASMJIT_INLINE_CONSTEXPR Imm eq() const noexcept { return Imm(id() * 4u + 2u); }
+
+  //! Returns the `SO` (summary overflow) bit of this field.
+  [[nodiscard]]
+  ASMJIT_INLINE_CONSTEXPR Imm so() const noexcept { return Imm(id() * 4u + 3u); }
+
+  //! Returns the `UN` (unordered) bit of this field, which is what a floating point compare stores in `SO`.
+  [[nodiscard]]
+  ASMJIT_INLINE_CONSTEXPR Imm un() const noexcept { return so(); }
+
+  //! \}
+};
+
 //! Memory operand (PPC64).
 //!
 //! PPC64 provides two addressing forms, `base + displacement` and `base + index`, and a memory operand never has
@@ -197,6 +235,10 @@ static ASMJIT_INLINE_CONSTEXPR Gp gp64(uint32_t id) noexcept { return Gp::make_r
 [[nodiscard]]
 static ASMJIT_INLINE_CONSTEXPR Vec f(uint32_t id) noexcept { return Vec::make_v64(id); }
 
+//! Creates a condition register field operand.
+[[nodiscard]]
+static ASMJIT_INLINE_CONSTEXPR Cr cr(uint32_t id) noexcept { return Cr(id); }
+
 static constexpr Gp r0 = Gp::make_r64(0);
 static constexpr Gp r1 = Gp::make_r64(1);
 static constexpr Gp r2 = Gp::make_r64(2);
@@ -262,6 +304,15 @@ static constexpr Vec f28 = Vec::make_v64(28);
 static constexpr Vec f29 = Vec::make_v64(29);
 static constexpr Vec f30 = Vec::make_v64(30);
 static constexpr Vec f31 = Vec::make_v64(31);
+
+static constexpr Cr cr0 = Cr(0);
+static constexpr Cr cr1 = Cr(1);
+static constexpr Cr cr2 = Cr(2);
+static constexpr Cr cr3 = Cr(3);
+static constexpr Cr cr4 = Cr(4);
+static constexpr Cr cr5 = Cr(5);
+static constexpr Cr cr6 = Cr(6);
+static constexpr Cr cr7 = Cr(7);
 
 #ifndef _DOXYGEN
 } // {regs}

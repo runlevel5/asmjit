@@ -47,6 +47,23 @@ UNIT(ppc64_operand) {
   EXPECT_EQ(f0.reg_group(), RegGroup::kVec);
   EXPECT_NE(Operand(f3), Operand(r3));
 
+  INFO("Checking Cr register properties");
+  EXPECT_EQ(cr(5), cr5);
+  EXPECT_TRUE(cr0.is_reg());
+  EXPECT_EQ(cr7.id(), 7u);
+  EXPECT_EQ(cr0.reg_type(), RegType::kPPC_Cr);
+  EXPECT_EQ(cr0.reg_group(), RegGroup::kPPC_Cr);
+  EXPECT_NE(Operand(cr3), Operand(r3));
+
+  INFO("Checking Cr register bits");
+  EXPECT_EQ(cr0.lt().value(), 0);
+  EXPECT_EQ(cr0.gt().value(), 1);
+  EXPECT_EQ(cr0.eq().value(), 2);
+  EXPECT_EQ(cr0.so().value(), 3);
+  EXPECT_EQ(cr1.eq().value(), 6);
+  EXPECT_EQ(cr7.lt().value(), 28);
+  EXPECT_EQ(cr7.un().value(), 31);
+
   INFO("Checking Mem [base + displacement]");
   Mem m_disp = ptr(r4, -8);
   EXPECT_TRUE(m_disp.is_mem());

@@ -31,8 +31,9 @@ static const constexpr ArchTraits ppc64_arch_traits = {
   32764, 32767,
 
   // Supported register types.
-  0u | (1u << uint32_t(RegType::kGp64 ))
-     | (1u << uint32_t(RegType::kVec64)),
+  0u | (1u << uint32_t(RegType::kGp64  ))
+     | (1u << uint32_t(RegType::kVec64 ))
+     | (1u << uint32_t(RegType::kPPC_Cr)),
 
   // Instruction hints [Gp, Vec, Mask, Extra].
   {{
