@@ -75,6 +75,18 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("2000804E", bclr(20, 0, 0));
   TEST_INSTRUCTION("2000824D", bclr(12, 2, 0));
   TEST_INSTRUCTION("20089E4C", bclr(4, 30, 1));
+  TEST_INSTRUCTION("0020237C", cmp(cr0, 1, r3, r4));
+  TEST_INSTRUCTION("00009F7F", cmp(cr7, 0, r31, r0));
+  TEST_INSTRUCTION("00F8A07C", cmp(cr1, 1, r0, r31));
+  TEST_INSTRUCTION("0100232C", cmpi(cr0, 1, r3, 1));
+  TEST_INSTRUCTION("00809F2F", cmpi(cr7, 0, r31, -32768));
+  TEST_INSTRUCTION("FF7FA02C", cmpi(cr1, 1, r0, 32767));
+  TEST_INSTRUCTION("4020237C", cmpl(cr0, 1, r3, r4));
+  TEST_INSTRUCTION("40009F7F", cmpl(cr7, 0, r31, r0));
+  TEST_INSTRUCTION("40F8A07C", cmpl(cr1, 1, r0, r31));
+  TEST_INSTRUCTION("01002328", cmpli(cr0, 1, r3, 1));
+  TEST_INSTRUCTION("FFFF9F2B", cmpli(cr7, 0, r31, 65535));
+  TEST_INSTRUCTION("0080A028", cmpli(cr1, 1, r0, 32768));
   TEST_INSTRUCTION("7400837C", cntlzd(r3, r4));
   TEST_INSTRUCTION("74001F7C", cntlzd(r31, r0));
   TEST_INSTRUCTION("7500E67C", cntlzd_rc(r6, r7));
@@ -87,6 +99,30 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("3404837C", cnttzw(r3, r4));
   TEST_INSTRUCTION("34041F7C", cnttzw(r31, r0));
   TEST_INSTRUCTION("3504E67C", cnttzw_rc(r6, r7));
+  TEST_INSTRUCTION("0212014C", crand(0, 1, 2));
+  TEST_INSTRUCTION("02EAFE4F", crand(31, 30, 29));
+  TEST_INSTRUCTION("0232424C", crand(2, 2, 6));
+  TEST_INSTRUCTION("0211014C", crandc(0, 1, 2));
+  TEST_INSTRUCTION("02E9FE4F", crandc(31, 30, 29));
+  TEST_INSTRUCTION("0231424C", crandc(2, 2, 6));
+  TEST_INSTRUCTION("4212014C", creqv(0, 1, 2));
+  TEST_INSTRUCTION("42EAFE4F", creqv(31, 30, 29));
+  TEST_INSTRUCTION("4232424C", creqv(2, 2, 6));
+  TEST_INSTRUCTION("C211014C", crnand(0, 1, 2));
+  TEST_INSTRUCTION("C2E9FE4F", crnand(31, 30, 29));
+  TEST_INSTRUCTION("C231424C", crnand(2, 2, 6));
+  TEST_INSTRUCTION("4210014C", crnor(0, 1, 2));
+  TEST_INSTRUCTION("42E8FE4F", crnor(31, 30, 29));
+  TEST_INSTRUCTION("4230424C", crnor(2, 2, 6));
+  TEST_INSTRUCTION("8213014C", cror(0, 1, 2));
+  TEST_INSTRUCTION("82EBFE4F", cror(31, 30, 29));
+  TEST_INSTRUCTION("8233424C", cror(2, 2, 6));
+  TEST_INSTRUCTION("4213014C", crorc(0, 1, 2));
+  TEST_INSTRUCTION("42EBFE4F", crorc(31, 30, 29));
+  TEST_INSTRUCTION("4233424C", crorc(2, 2, 6));
+  TEST_INSTRUCTION("8211014C", crxor(0, 1, 2));
+  TEST_INSTRUCTION("82E9FE4F", crxor(31, 30, 29));
+  TEST_INSTRUCTION("8231424C", crxor(2, 2, 6));
   TEST_INSTRUCTION("D22B647C", divd(r3, r4, r5));
   TEST_INSTRUCTION("D20BE07F", divd(r31, r0, r1));
   TEST_INSTRUCTION("D343C77C", divd_rc(r6, r7, r8));
@@ -119,6 +155,9 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("B407837C", extsw(r3, r4));
   TEST_INSTRUCTION("B4071F7C", extsw(r31, r0));
   TEST_INSTRUCTION("B507E67C", extsw_rc(r6, r7));
+  TEST_INSTRUCTION("9E28647C", isel(r3, r4, r5, 2));
+  TEST_INSTRUCTION("DE07E17F", isel(r31, r1, r0, 31));
+  TEST_INSTRUCTION("1EF01F7C", isel(r0, r31, r30, 0));
   TEST_INSTRUCTION("6828647C", lbarx(r3, ptr(r4, r5)));
   TEST_INSTRUCTION("6800FF7F", lbarx(r31, ptr(r31, r0)));
   TEST_INSTRUCTION("68F8017C", lbarx(r0, ptr(r1, r31)));
@@ -231,6 +270,12 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("2E28647C", lwzx(r3, ptr(r4, r5)));
   TEST_INSTRUCTION("2E00FF7F", lwzx(r31, ptr(r31, r0)));
   TEST_INSTRUCTION("2EF8017C", lwzx(r0, ptr(r1, r31)));
+  TEST_INSTRUCTION("0000044C", mcrf(cr0, cr1));
+  TEST_INSTRUCTION("0000984F", mcrf(cr7, cr6));
+  TEST_INSTRUCTION("8004007C", mcrxrx(cr0));
+  TEST_INSTRUCTION("8004807F", mcrxrx(cr7));
+  TEST_INSTRUCTION("2600607C", mfcr(r3));
+  TEST_INSTRUCTION("2600E07F", mfcr(r31));
   TEST_INSTRUCTION("A602687C", mfspr(r3, 8));
   TEST_INSTRUCTION("A6426C7C", mfspr(r3, 268));
   TEST_INSTRUCTION("122E647C", modsd(r3, r4, r5));
@@ -328,6 +373,8 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("8628835C", rlwnm(r3, r4, r5, 2, 3));
   TEST_INSTRUCTION("FC0F1F5C", rlwnm(r31, r0, r1, 31, 30));
   TEST_INSTRUCTION("3144E65C", rlwnm_rc(r6, r7, r8, 16, 24));
+  TEST_INSTRUCTION("0001607C", setb(r3, cr0));
+  TEST_INSTRUCTION("0001FC7F", setb(r31, cr7));
   TEST_INSTRUCTION("3628837C", sld(r3, r4, r5));
   TEST_INSTRUCTION("36081F7C", sld(r31, r0, r1));
   TEST_INSTRUCTION("3740E67C", sld_rc(r6, r7, r8));
@@ -480,6 +527,28 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_extended(AssemblerTester<ppc::A
   TEST_INSTRUCTION("20008378", clrldi(r3, r4, 32));
   TEST_INSTRUCTION("3E048354", clrlwi(r3, r4, 16));
   TEST_INSTRUCTION("64078378", clrrdi(r3, r4, 2));
+  TEST_INSTRUCTION("0020A37F", cmpd(cr7, r3, r4));
+  TEST_INSTRUCTION("0020237C", cmpd(r3, r4));
+  TEST_INSTRUCTION("FBFFA32F", cmpdi(cr7, r3, -5));
+  TEST_INSTRUCTION("FBFF232C", cmpdi(r3, -5));
+  TEST_INSTRUCTION("4020A37F", cmpld(cr7, r3, r4));
+  TEST_INSTRUCTION("4020237C", cmpld(r3, r4));
+  TEST_INSTRUCTION("0F00A32B", cmpldi(cr7, r3, 15));
+  TEST_INSTRUCTION("0F002328", cmpldi(r3, 15));
+  TEST_INSTRUCTION("4020837F", cmplw(cr7, r3, r4));
+  TEST_INSTRUCTION("4020037C", cmplw(r3, r4));
+  TEST_INSTRUCTION("0F00832B", cmplwi(cr7, r3, 15));
+  TEST_INSTRUCTION("0F000328", cmplwi(r3, 15));
+  TEST_INSTRUCTION("0020837F", cmpw(cr7, r3, r4));
+  TEST_INSTRUCTION("0020037C", cmpw(r3, r4));
+  TEST_INSTRUCTION("FBFF832F", cmpwi(cr7, r3, -5));
+  TEST_INSTRUCTION("FBFF032C", cmpwi(r3, -5));
+  TEST_INSTRUCTION("0232424C", crand(cr0.eq(), cr0.eq(), cr1.eq()));
+  TEST_INSTRUCTION("8231C64C", crclr(cr1.eq()));
+  TEST_INSTRUCTION("8213C24C", crmove(cr1.eq(), cr0.eq()));
+  TEST_INSTRUCTION("4210C24C", crnot(cr1.eq(), cr0.eq()));
+  TEST_INSTRUCTION("4232C64C", crset(cr1.eq()));
+  TEST_INSTRUCTION("1E28647C", isel(r3, r4, r5, cr0.lt()));
   TEST_INSTRUCTION("A602897D", mfctr(r12));
   TEST_INSTRUCTION("A602087C", mflr(r0));
   TEST_INSTRUCTION("A603897D", mtctr(r12));
@@ -507,6 +576,7 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_invalid(AssemblerTester<ppc::As
   // R0 would be read as zero.
   FAIL_INSTRUCTION(Error::kInvalidPhysId, addi(r3, r0, 1));
   FAIL_INSTRUCTION(Error::kInvalidPhysId, addis(r3, r0, 1));
+  FAIL_INSTRUCTION(Error::kInvalidPhysId, isel(r3, r0, r5, cr0.eq()));
   FAIL_INSTRUCTION(Error::kInvalidAddress, ld(r3, ptr(r0, 8)));
   FAIL_INSTRUCTION(Error::kInvalidAddress, std(r3, ptr(r0, 8)));
 
@@ -532,6 +602,12 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_invalid(AssemblerTester<ppc::As
   FAIL_INSTRUCTION(Error::kInvalidImmediate, sldi(r3, r4, 64));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, srdi(r3, r4, 65));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, slwi(r3, r4, 32));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, cmp(cr0, 2, r3, r4));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, cmpdi(r3, 32768));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, cmpldi(r3, -1));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, cmpldi(r3, 65536));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, crand(32, 0, 0));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, isel(r3, r4, r5, 32));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, bclr(32, 0, 0));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, bclr(20, 32, 0));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, bclr(20, 0, 4));
@@ -570,6 +646,10 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_invalid(AssemblerTester<ppc::As
   FAIL_INSTRUCTION(Error::kOverlappedRegs, ldu(r3, ptr(r3, 8)));
   FAIL_INSTRUCTION(Error::kOverlappedRegs, ldux(r3, ptr(r3, r5)));
 
+  // There are only 8 condition register fields.
+  FAIL_INSTRUCTION(Error::kInvalidPhysId, cmpd(cr(8), r3, r4));
+  FAIL_INSTRUCTION(Error::kInvalidPhysId, mcrf(cr0, cr(8)));
+
   // Floating point register used as a general purpose register.
   FAIL_INSTRUCTION(Error::kInvalidAddress, ld(r3, Mem(f4, 8)));
 }
@@ -581,6 +661,9 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_big_endian(AssemblerTester<ppc:
   TEST_INSTRUCTION("7C642A14", add(r3, r4, r5));
   TEST_INSTRUCTION("38618000", addi(r3, r1, -32768));
   TEST_INSTRUCTION("4E800020", blr());
+  TEST_INSTRUCTION("7FA32000", cmpd(cr7, r3, r4));
+  TEST_INSTRUCTION("4C423202", crand(cr0.eq(), cr0.eq(), cr1.eq()));
+  TEST_INSTRUCTION("7C64281E", isel(r3, r4, r5, cr0.lt()));
   TEST_INSTRUCTION("EBFF7FFC", ld(r31, ptr(r31, 32764)));
   TEST_INSTRUCTION("7C0802A6", mflr(r0));
   TEST_INSTRUCTION("7C64602A", ldx(r3, ptr(r4, r12)));

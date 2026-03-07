@@ -83,6 +83,10 @@ struct EmitterExplicitT {
   ASMJIT_INST_3x(andi_rc, Andi_rc, Gp, Gp, Imm)
   ASMJIT_INST_3x(andis_rc, Andis_rc, Gp, Gp, Imm)
   ASMJIT_INST_3x(bclr, Bclr, Imm, Imm, Imm)
+  ASMJIT_INST_4x(cmp, Cmp, Cr, Imm, Gp, Gp)
+  ASMJIT_INST_4x(cmpi, Cmpi, Cr, Imm, Gp, Imm)
+  ASMJIT_INST_4x(cmpl, Cmpl, Cr, Imm, Gp, Gp)
+  ASMJIT_INST_4x(cmpli, Cmpli, Cr, Imm, Gp, Imm)
   ASMJIT_INST_2x(cntlzd, Cntlzd, Gp, Gp)
   ASMJIT_INST_2x(cntlzd_rc, Cntlzd_rc, Gp, Gp)
   ASMJIT_INST_2x(cntlzw, Cntlzw, Gp, Gp)
@@ -91,6 +95,14 @@ struct EmitterExplicitT {
   ASMJIT_INST_2x(cnttzd_rc, Cnttzd_rc, Gp, Gp)
   ASMJIT_INST_2x(cnttzw, Cnttzw, Gp, Gp)
   ASMJIT_INST_2x(cnttzw_rc, Cnttzw_rc, Gp, Gp)
+  ASMJIT_INST_3x(crand, Crand, Imm, Imm, Imm)
+  ASMJIT_INST_3x(crandc, Crandc, Imm, Imm, Imm)
+  ASMJIT_INST_3x(creqv, Creqv, Imm, Imm, Imm)
+  ASMJIT_INST_3x(crnand, Crnand, Imm, Imm, Imm)
+  ASMJIT_INST_3x(crnor, Crnor, Imm, Imm, Imm)
+  ASMJIT_INST_3x(cror, Cror, Imm, Imm, Imm)
+  ASMJIT_INST_3x(crorc, Crorc, Imm, Imm, Imm)
+  ASMJIT_INST_3x(crxor, Crxor, Imm, Imm, Imm)
   ASMJIT_INST_3x(divd, Divd, Gp, Gp, Gp)
   ASMJIT_INST_3x(divd_rc, Divd_rc, Gp, Gp, Gp)
   ASMJIT_INST_3x(divdo, Divdo, Gp, Gp, Gp)
@@ -115,6 +127,7 @@ struct EmitterExplicitT {
   ASMJIT_INST_2x(extsh_rc, Extsh_rc, Gp, Gp)
   ASMJIT_INST_2x(extsw, Extsw, Gp, Gp)
   ASMJIT_INST_2x(extsw_rc, Extsw_rc, Gp, Gp)
+  ASMJIT_INST_4x(isel, Isel, Gp, Gp, Gp, Imm)
   ASMJIT_INST_2x(lbarx, Lbarx, Gp, Mem)
   ASMJIT_INST_2x(lbz, Lbz, Gp, Mem)
   ASMJIT_INST_2x(lbzu, Lbzu, Gp, Mem)
@@ -151,6 +164,9 @@ struct EmitterExplicitT {
   ASMJIT_INST_2x(lwzu, Lwzu, Gp, Mem)
   ASMJIT_INST_2x(lwzux, Lwzux, Gp, Mem)
   ASMJIT_INST_2x(lwzx, Lwzx, Gp, Mem)
+  ASMJIT_INST_2x(mcrf, Mcrf, Cr, Cr)
+  ASMJIT_INST_1x(mcrxrx, Mcrxrx, Cr)
+  ASMJIT_INST_1x(mfcr, Mfcr, Gp)
   ASMJIT_INST_2x(mfspr, Mfspr, Gp, Imm)
   ASMJIT_INST_3x(modsd, Modsd, Gp, Gp, Gp)
   ASMJIT_INST_3x(modsw, Modsw, Gp, Gp, Gp)
@@ -209,6 +225,7 @@ struct EmitterExplicitT {
   ASMJIT_INST_5x(rlwinm_rc, Rlwinm_rc, Gp, Gp, Imm, Imm, Imm)
   ASMJIT_INST_5x(rlwnm, Rlwnm, Gp, Gp, Gp, Imm, Imm)
   ASMJIT_INST_5x(rlwnm_rc, Rlwnm_rc, Gp, Gp, Gp, Imm, Imm)
+  ASMJIT_INST_2x(setb, Setb, Gp, Cr)
   ASMJIT_INST_3x(sld, Sld, Gp, Gp, Gp)
   ASMJIT_INST_3x(sld_rc, Sld_rc, Gp, Gp, Gp)
   ASMJIT_INST_3x(slw, Slw, Gp, Gp, Gp)
@@ -295,6 +312,48 @@ struct EmitterExplicitT {
   inline Error clrlwi(const Gp& ra, const Gp& rs, uint32_t n) { return rlwinm(ra, rs, Imm(0), Imm(n), Imm(31)); }
   //! Emits `rldicr ra, rs, 0, 63 - n` (clears the `n` least significant bits).
   inline Error clrrdi(const Gp& ra, const Gp& rs, uint32_t n) { return rldicr(ra, rs, Imm(0), Imm(63u - n)); }
+
+  //! Emits `cmp bf, 1, ra, rb` (signed 64-bit compare).
+  inline Error cmpd(const Cr& bf, const Gp& ra, const Gp& rb) { return cmp(bf, Imm(1), ra, rb); }
+  //! Emits `cmp cr0, 1, ra, rb` (signed 64-bit compare).
+  inline Error cmpd(const Gp& ra, const Gp& rb) { return cmp(regs::cr0, Imm(1), ra, rb); }
+  //! Emits `cmpi bf, 1, ra, si` (signed 64-bit compare).
+  inline Error cmpdi(const Cr& bf, const Gp& ra, const Imm& si) { return cmpi(bf, Imm(1), ra, si); }
+  //! Emits `cmpi cr0, 1, ra, si` (signed 64-bit compare).
+  inline Error cmpdi(const Gp& ra, const Imm& si) { return cmpi(regs::cr0, Imm(1), ra, si); }
+  //! Emits `cmpl bf, 1, ra, rb` (unsigned 64-bit compare).
+  inline Error cmpld(const Cr& bf, const Gp& ra, const Gp& rb) { return cmpl(bf, Imm(1), ra, rb); }
+  //! Emits `cmpl cr0, 1, ra, rb` (unsigned 64-bit compare).
+  inline Error cmpld(const Gp& ra, const Gp& rb) { return cmpl(regs::cr0, Imm(1), ra, rb); }
+  //! Emits `cmpli bf, 1, ra, ui` (unsigned 64-bit compare).
+  inline Error cmpldi(const Cr& bf, const Gp& ra, const Imm& ui) { return cmpli(bf, Imm(1), ra, ui); }
+  //! Emits `cmpli cr0, 1, ra, ui` (unsigned 64-bit compare).
+  inline Error cmpldi(const Gp& ra, const Imm& ui) { return cmpli(regs::cr0, Imm(1), ra, ui); }
+  //! Emits `cmpl bf, 0, ra, rb` (unsigned 32-bit compare).
+  inline Error cmplw(const Cr& bf, const Gp& ra, const Gp& rb) { return cmpl(bf, Imm(0), ra, rb); }
+  //! Emits `cmpl cr0, 0, ra, rb` (unsigned 32-bit compare).
+  inline Error cmplw(const Gp& ra, const Gp& rb) { return cmpl(regs::cr0, Imm(0), ra, rb); }
+  //! Emits `cmpli bf, 0, ra, ui` (unsigned 32-bit compare).
+  inline Error cmplwi(const Cr& bf, const Gp& ra, const Imm& ui) { return cmpli(bf, Imm(0), ra, ui); }
+  //! Emits `cmpli cr0, 0, ra, ui` (unsigned 32-bit compare).
+  inline Error cmplwi(const Gp& ra, const Imm& ui) { return cmpli(regs::cr0, Imm(0), ra, ui); }
+  //! Emits `cmp bf, 0, ra, rb` (signed 32-bit compare).
+  inline Error cmpw(const Cr& bf, const Gp& ra, const Gp& rb) { return cmp(bf, Imm(0), ra, rb); }
+  //! Emits `cmp cr0, 0, ra, rb` (signed 32-bit compare).
+  inline Error cmpw(const Gp& ra, const Gp& rb) { return cmp(regs::cr0, Imm(0), ra, rb); }
+  //! Emits `cmpi bf, 0, ra, si` (signed 32-bit compare).
+  inline Error cmpwi(const Cr& bf, const Gp& ra, const Imm& si) { return cmpi(bf, Imm(0), ra, si); }
+  //! Emits `cmpi cr0, 0, ra, si` (signed 32-bit compare).
+  inline Error cmpwi(const Gp& ra, const Imm& si) { return cmpi(regs::cr0, Imm(0), ra, si); }
+
+  //! Emits `crxor bt, bt, bt` (clears the condition register bit).
+  inline Error crclr(const Imm& bt) { return crxor(bt, bt, bt); }
+  //! Emits `cror bt, ba, ba` (copies the condition register bit).
+  inline Error crmove(const Imm& bt, const Imm& ba) { return cror(bt, ba, ba); }
+  //! Emits `crnor bt, ba, ba` (complements the condition register bit).
+  inline Error crnot(const Imm& bt, const Imm& ba) { return crnor(bt, ba, ba); }
+  //! Emits `creqv bt, bt, bt` (sets the condition register bit).
+  inline Error crset(const Imm& bt) { return creqv(bt, bt, bt); }
 
   //! Emits `mfspr rt, CTR`.
   inline Error mfctr(const Gp& rt) { return mfspr(rt, Imm(SPR::kCTR)); }

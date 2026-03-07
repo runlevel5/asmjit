@@ -73,7 +73,26 @@ enum EncodingId : uint32_t {
   //! `inst SPR, RS` - SPR is a special purpose register number.
   kEncodingSprRs,
   //! `inst BO, BI, BH` - branch to LR or CTR, operands are immediates.
-  kEncodingBoBiBh
+  kEncodingBoBiBh,
+
+  //! `inst BF, L, RA, RB` - compare, BF is a condition register field, L selects a 32-bit (0) or 64-bit (1) compare.
+  kEncodingBfLRaRb,
+  //! `inst BF, L, RA, SI` - compare with a signed 16-bit immediate.
+  kEncodingBfLRaSi,
+  //! `inst BF, L, RA, UI` - compare with an unsigned 16-bit immediate.
+  kEncodingBfLRaUi,
+  //! `inst BT, BA, BB` - operands are condition register bits (0-31).
+  kEncodingBtBaBb,
+  //! `inst BF, BFA` - two condition register fields.
+  kEncodingBfBfa,
+  //! `inst BF` - condition register field.
+  kEncodingBf,
+  //! `inst RT` - general purpose register.
+  kEncodingRt,
+  //! `inst RT, BFA` - general purpose register and a condition register field.
+  kEncodingRtBfa,
+  //! `inst RT, RA, RB, BC` - RA cannot be R0 (the instruction would read it as zero), BC is a condition register bit.
+  kEncodingRtRaRbBc
 };
 
 #ifndef ASMJIT_NO_TEXT

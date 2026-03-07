@@ -185,6 +185,10 @@ UNIT(ppc64_formatter) {
   test_format_instruction("mtspr 9, r12", kNoFlags, Inst::kIdMtspr, Imm(9), r12);
   test_format_instruction("bclr 20, 0, 0", kNoFlags, Inst::kIdBclr, Imm(20), Imm(0), Imm(0));
 
+  INFO("Checking instructions with condition register operands");
+  test_format_instruction("mcrf cr0, cr7", kNoFlags, Inst::kIdMcrf, cr0, cr7);
+  test_format_instruction("crand 2, 2, 6", kNoFlags, Inst::kIdCrand, cr0.eq(), cr0.eq(), cr1.eq());
+
   INFO("Checking memory operands");
   test_format_instruction("ld r3, 0(r4)", kNoFlags, Inst::kIdLd, r3, ptr(r4));
   test_format_instruction("ld r3, 8(r4)", kNoFlags, Inst::kIdLd, r3, ptr(r4, 8));

@@ -54,6 +54,10 @@ namespace InstDB {
   X(Andi_rc     , "andi."      , 0x70000000u, RaRsUi      )  \
   X(Andis_rc    , "andis."     , 0x74000000u, RaRsUi      )  \
   X(Bclr        , "bclr"       , 0x4C000020u, BoBiBh      )  \
+  X(Cmp         , "cmp"        , 0x7C000000u, BfLRaRb     )  \
+  X(Cmpi        , "cmpi"       , 0x2C000000u, BfLRaSi     )  \
+  X(Cmpl        , "cmpl"       , 0x7C000040u, BfLRaRb     )  \
+  X(Cmpli       , "cmpli"      , 0x28000000u, BfLRaUi     )  \
   X(Cntlzd      , "cntlzd"     , 0x7C000074u, RaRs        )  \
   X(Cntlzd_rc   , "cntlzd."    , 0x7C000075u, RaRs        )  \
   X(Cntlzw      , "cntlzw"     , 0x7C000034u, RaRs        )  \
@@ -62,6 +66,14 @@ namespace InstDB {
   X(Cnttzd_rc   , "cnttzd."    , 0x7C000475u, RaRs        )  \
   X(Cnttzw      , "cnttzw"     , 0x7C000434u, RaRs        )  \
   X(Cnttzw_rc   , "cnttzw."    , 0x7C000435u, RaRs        )  \
+  X(Crand       , "crand"      , 0x4C000202u, BtBaBb      )  \
+  X(Crandc      , "crandc"     , 0x4C000102u, BtBaBb      )  \
+  X(Creqv       , "creqv"      , 0x4C000242u, BtBaBb      )  \
+  X(Crnand      , "crnand"     , 0x4C0001C2u, BtBaBb      )  \
+  X(Crnor       , "crnor"      , 0x4C000042u, BtBaBb      )  \
+  X(Cror        , "cror"       , 0x4C000382u, BtBaBb      )  \
+  X(Crorc       , "crorc"      , 0x4C000342u, BtBaBb      )  \
+  X(Crxor       , "crxor"      , 0x4C000182u, BtBaBb      )  \
   X(Divd        , "divd"       , 0x7C0003D2u, RtRaRb      )  \
   X(Divd_rc     , "divd."      , 0x7C0003D3u, RtRaRb      )  \
   X(Divdo       , "divdo"      , 0x7C0007D2u, RtRaRb      )  \
@@ -86,6 +98,7 @@ namespace InstDB {
   X(Extsh_rc    , "extsh."     , 0x7C000735u, RaRs        )  \
   X(Extsw       , "extsw"      , 0x7C0007B4u, RaRs        )  \
   X(Extsw_rc    , "extsw."     , 0x7C0007B5u, RaRs        )  \
+  X(Isel        , "isel"       , 0x7C00001Eu, RtRaRbBc    )  \
   X(Lbarx       , "lbarx"      , 0x7C000068u, RtMemX      )  \
   X(Lbz         , "lbz"        , 0x88000000u, RtMemD      )  \
   X(Lbzu        , "lbzu"       , 0x8C000000u, RtMemDLu    )  \
@@ -122,6 +135,9 @@ namespace InstDB {
   X(Lwzu        , "lwzu"       , 0x84000000u, RtMemDLu    )  \
   X(Lwzux       , "lwzux"      , 0x7C00006Eu, RtMemXLu    )  \
   X(Lwzx        , "lwzx"       , 0x7C00002Eu, RtMemX      )  \
+  X(Mcrf        , "mcrf"       , 0x4C000000u, BfBfa       )  \
+  X(Mcrxrx      , "mcrxrx"     , 0x7C000480u, Bf          )  \
+  X(Mfcr        , "mfcr"       , 0x7C000026u, Rt          )  \
   X(Mfspr       , "mfspr"      , 0x7C0002A6u, RtSpr       )  \
   X(Modsd       , "modsd"      , 0x7C000612u, RtRaRb      )  \
   X(Modsw       , "modsw"      , 0x7C000616u, RtRaRb      )  \
@@ -180,6 +196,7 @@ namespace InstDB {
   X(Rlwinm_rc   , "rlwinm."    , 0x54000001u, RaRsSh5MbMe )  \
   X(Rlwnm       , "rlwnm"      , 0x5C000000u, RaRsRbMbMe  )  \
   X(Rlwnm_rc    , "rlwnm."     , 0x5C000001u, RaRsRbMbMe  )  \
+  X(Setb        , "setb"       , 0x7C000100u, RtBfa       )  \
   X(Sld         , "sld"        , 0x7C000036u, RaRsRb      )  \
   X(Sld_rc      , "sld."       , 0x7C000037u, RaRsRb      )  \
   X(Slw         , "slw"        , 0x7C000030u, RaRsRb      )  \

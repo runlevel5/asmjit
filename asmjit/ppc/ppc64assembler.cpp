@@ -26,6 +26,11 @@ static ASMJIT_INLINE_NODEBUG bool is_gp64(const Operand_& op) noexcept {
   return op.as<Reg>().is_gp64();
 }
 
+// Tests whether the operand, which must be a register, is a condition register field.
+static ASMJIT_INLINE_NODEBUG bool is_cr(const Operand_& op) noexcept {
+  return op.as<Reg>().is_reg(RegType::kPPC_Cr);
+}
+
 // Tests whether the given register ids are ids of physical registers.
 static ASMJIT_INLINE_NODEBUG bool is_phys_id(uint32_t id0, uint32_t id1 = 0, uint32_t id2 = 0) noexcept {
   return (id0 | id1 | id2) <= 31u;
@@ -51,6 +56,9 @@ Assembler::~Assembler() noexcept {}
 
 // ppc::Assembler - Emit
 // =====================
+
+#define ENC_OPS1(OP0) \
+  (uint32_t(OperandType::k##OP0))
 
 #define ENC_OPS2(OP0, OP1) \
   (uint32_t(OperandType::k##OP0) + \
@@ -504,6 +512,165 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
       break;
     }
 
+    case InstDB::kEncodingBfLRaRb: {
+      if (isign4 == ENC_OPS4(Reg, Imm, Reg, Reg)) {
+        if (!is_cr(o0) || !is_gp64(o2) || !is_gp64(o3)) {
+          goto InvalidInstruction;
+        }
+
+        if (o0.id() > 7u || !is_phys_id(o2.id(), o3.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t l = o1.as<Imm>().value();
+        if (!Support::is_uint_n<1>(l)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (o0.id() << 23) | (uint32_t(l) << 21) | (o2.id() << 16) | (o3.id() << 11);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingBfLRaSi:
+    case InstDB::kEncodingBfLRaUi: {
+      if (isign4 == ENC_OPS4(Reg, Imm, Reg, Imm)) {
+        if (!is_cr(o0) || !is_gp64(o2)) {
+          goto InvalidInstruction;
+        }
+
+        if (o0.id() > 7u || !is_phys_id(o2.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t l = o1.as<Imm>().value();
+        int64_t imm = o3.as<Imm>().value();
+
+        if (!Support::is_uint_n<1>(l)) {
+          goto InvalidImmediate;
+        }
+
+        if (inst_info->_encoding == InstDB::kEncodingBfLRaSi ? !Support::is_int_n<16>(imm) : !Support::is_uint_n<16>(imm)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (o0.id() << 23) | (uint32_t(l) << 21) | (o2.id() << 16) | (uint32_t(imm) & 0xFFFFu);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingBtBaBb: {
+      if (isign4 == ENC_OPS3(Imm, Imm, Imm)) {
+        int64_t bt = o0.as<Imm>().value();
+        int64_t ba = o1.as<Imm>().value();
+        int64_t bb = o2.as<Imm>().value();
+
+        if (!Support::is_uint_n<5>(bt) || !Support::is_uint_n<5>(ba) || !Support::is_uint_n<5>(bb)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (uint32_t(bt) << 21) | (uint32_t(ba) << 16) | (uint32_t(bb) << 11);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingBfBfa: {
+      if (isign4 == ENC_OPS2(Reg, Reg)) {
+        if (!is_cr(o0) || !is_cr(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (o0.id() > 7u || o1.id() > 7u) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= (o0.id() << 23) | (o1.id() << 18);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingBf: {
+      if (isign4 == ENC_OPS1(Reg)) {
+        if (!is_cr(o0)) {
+          goto InvalidInstruction;
+        }
+
+        if (o0.id() > 7u) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= o0.id() << 23;
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRt: {
+      if (isign4 == ENC_OPS1(Reg)) {
+        if (!is_gp64(o0)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id())) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= o0.id() << 21;
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRtBfa: {
+      if (isign4 == ENC_OPS2(Reg, Reg)) {
+        if (!is_gp64(o0) || !is_cr(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id()) || o1.id() > 7u) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= (o0.id() << 21) | (o1.id() << 18);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRtRaRbBc: {
+      if (isign4 == ENC_OPS4(Reg, Reg, Reg, Imm)) {
+        if (!is_gp64(o0) || !is_gp64(o1) || !is_gp64(o2)) {
+          goto InvalidInstruction;
+        }
+
+        // R0 used as RA would be read as zero and not as a register.
+        if (!is_phys_id(o0.id(), o1.id(), o2.id()) || o1.id() == 0u) {
+          goto InvalidPhysId;
+        }
+
+        int64_t bc = o3.as<Imm>().value();
+        if (!Support::is_uint_n<5>(bc)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (o0.id() << 21) | (o1.id() << 16) | (o2.id() << 11) | (uint32_t(bc) << 6);
+        goto EmitOp;
+      }
+
+      break;
+    }
+
     default:
       break;
   }
@@ -561,6 +728,7 @@ Failed:
 #endif
 }
 
+#undef ENC_OPS1
 #undef ENC_OPS2
 #undef ENC_OPS3
 #undef ENC_OPS4
