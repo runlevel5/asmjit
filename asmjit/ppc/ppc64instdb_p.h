@@ -74,6 +74,10 @@ enum EncodingId : uint32_t {
   kEncodingSprRs,
   //! `inst BO, BI, BH` - branch to LR or CTR, operands are immediates.
   kEncodingBoBiBh,
+  //! `inst target` - branch to a label that is within +-32 MiB.
+  kEncodingRel24,
+  //! `inst BO, BI, target` - conditional branch to a label that is within +-32 KiB.
+  kEncodingBoBiRel14,
 
   //! `inst BF, L, RA, RB` - compare, BF is a condition register field, L selects a 32-bit (0) or 64-bit (1) compare.
   kEncodingBfLRaRb,

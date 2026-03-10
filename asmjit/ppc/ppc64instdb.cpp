@@ -53,7 +53,14 @@ namespace InstDB {
   X(Andc_rc     , "andc."      , 0x7C000079u, RaRsRb      )  \
   X(Andi_rc     , "andi."      , 0x70000000u, RaRsUi      )  \
   X(Andis_rc    , "andis."     , 0x74000000u, RaRsUi      )  \
+  X(B           , "b"          , 0x48000000u, Rel24       )  \
+  X(Bc          , "bc"         , 0x40000000u, BoBiRel14   )  \
+  X(Bcctr       , "bcctr"      , 0x4C000420u, BoBiBh      )  \
+  X(Bcctrl      , "bcctrl"     , 0x4C000421u, BoBiBh      )  \
+  X(Bcl         , "bcl"        , 0x40000001u, BoBiRel14   )  \
   X(Bclr        , "bclr"       , 0x4C000020u, BoBiBh      )  \
+  X(Bclrl       , "bclrl"      , 0x4C000021u, BoBiBh      )  \
+  X(Bl          , "bl"         , 0x48000001u, Rel24       )  \
   X(Cmp         , "cmp"        , 0x7C000000u, BfLRaRb     )  \
   X(Cmpi        , "cmpi"       , 0x2C000000u, BfLRaSi     )  \
   X(Cmpl        , "cmpl"       , 0x7C000040u, BfLRaRb     )  \

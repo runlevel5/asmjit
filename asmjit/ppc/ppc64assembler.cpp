@@ -95,6 +95,10 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
   uint32_t opcode = inst_info->opcode();
   uint32_t isign4;
 
+  // These are only used when instruction uses a relative displacement.
+  const Operand_* rel_op = nullptr;  // Operand that describes the target.
+  OffsetFormat offset_format;        // Offset format.
+
   const Operand_& o3 = op_ext[EmitterUtils::kOp3];
 
   if (ASMJIT_UNLIKELY(Support::test(options, kRequiresSpecialHandling))) {
@@ -512,6 +516,35 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
       break;
     }
 
+    case InstDB::kEncodingRel24: {
+      if (isign4 == ENC_OPS1(Label)) {
+        rel_op = &o0;
+        offset_format.reset_to_imm_value(OffsetType::kSignedOffset, 4, 2, 24, 2);
+        goto EmitOp_Rel;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingBoBiRel14: {
+      if (isign4 == ENC_OPS3(Imm, Imm, Label)) {
+        int64_t bo = o0.as<Imm>().value();
+        int64_t bi = o1.as<Imm>().value();
+
+        if (!Support::is_uint_n<5>(bo) || !Support::is_uint_n<5>(bi)) {
+          goto InvalidImmediate;
+        }
+
+        opcode |= (uint32_t(bo) << 21) | (uint32_t(bi) << 16);
+
+        rel_op = &o2;
+        offset_format.reset_to_imm_value(OffsetType::kSignedOffset, 4, 2, 14, 2);
+        goto EmitOp_Rel;
+      }
+
+      break;
+    }
+
     case InstDB::kEncodingBfLRaRb: {
       if (isign4 == ENC_OPS4(Reg, Imm, Reg, Reg)) {
         if (!is_cr(o0) || !is_gp64(o2) || !is_gp64(o3)) {
@@ -678,6 +711,47 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
   goto InvalidInstruction;
 
   // --------------------------------------------------------------------------
+  // [EmitOp - PC Relative]
+  // --------------------------------------------------------------------------
+
+EmitOp_Rel:
+  {
+    uint32_t label_id = rel_op->as<Label>().id();
+
+    if (ASMJIT_UNLIKELY(!_code->is_label_valid(label_id))) {
+      goto InvalidLabel;
+    }
+
+    LabelEntry& le = _code->label_entry_of(label_id);
+    offset_format.set_big_endian(_environment.is_big_endian());
+
+    if (le.is_bound_to(_section)) {
+      // Label bound to the current section - the displacement is relative to the address of this instruction.
+      int64_t disp = int64_t(le.offset() - uint64_t(offset()));
+
+      if ((disp & int64_t(Support::lsb_mask<uint32_t>(offset_format.imm_discard_lsb()))) != 0) {
+        goto InvalidDisplacement;
+      }
+
+      disp >>= offset_format.imm_discard_lsb();
+      if (!EmitterUtils::is_encodable_offset_64(disp, offset_format.imm_bit_count())) {
+        goto InvalidDisplacement;
+      }
+
+      opcode |= (uint32_t(disp) & Support::lsb_mask<uint32_t>(offset_format.imm_bit_count())) << offset_format.imm_bit_shift();
+    }
+    else {
+      // Create a fixup referencing a non-bound label.
+      size_t code_offset = writer.offset_from(_buffer_data);
+      Fixup* fixup = _code->new_fixup(le, _section->section_id(), code_offset, 0, offset_format);
+
+      if (ASMJIT_UNLIKELY(!fixup)) {
+        goto OutOfMemory;
+      }
+    }
+  }
+
+  // --------------------------------------------------------------------------
   // [EmitOp - Opcode]
   // --------------------------------------------------------------------------
 
@@ -711,10 +785,12 @@ EmitOp:
   // --------------------------------------------------------------------------
 
 #define ERROR_HANDLER(ERR) ERR: err = make_error(Error::k##ERR); goto Failed;
+  ERROR_HANDLER(OutOfMemory)
   ERROR_HANDLER(InvalidAddress)
   ERROR_HANDLER(InvalidDisplacement)
   ERROR_HANDLER(InvalidImmediate)
   ERROR_HANDLER(InvalidInstruction)
+  ERROR_HANDLER(InvalidLabel)
   ERROR_HANDLER(InvalidPhysId)
   ERROR_HANDLER(OverlappedRegs)
 #undef ERROR_HANDLER

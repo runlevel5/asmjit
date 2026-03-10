@@ -82,7 +82,14 @@ struct EmitterExplicitT {
   ASMJIT_INST_3x(andc_rc, Andc_rc, Gp, Gp, Gp)
   ASMJIT_INST_3x(andi_rc, Andi_rc, Gp, Gp, Imm)
   ASMJIT_INST_3x(andis_rc, Andis_rc, Gp, Gp, Imm)
+  ASMJIT_INST_1x(b, B, Label)
+  ASMJIT_INST_3x(bc, Bc, Imm, Imm, Label)
+  ASMJIT_INST_3x(bcctr, Bcctr, Imm, Imm, Imm)
+  ASMJIT_INST_3x(bcctrl, Bcctrl, Imm, Imm, Imm)
+  ASMJIT_INST_3x(bcl, Bcl, Imm, Imm, Label)
   ASMJIT_INST_3x(bclr, Bclr, Imm, Imm, Imm)
+  ASMJIT_INST_3x(bclrl, Bclrl, Imm, Imm, Imm)
+  ASMJIT_INST_1x(bl, Bl, Label)
   ASMJIT_INST_4x(cmp, Cmp, Cr, Imm, Gp, Gp)
   ASMJIT_INST_4x(cmpi, Cmpi, Cr, Imm, Gp, Imm)
   ASMJIT_INST_4x(cmpl, Cmpl, Cr, Imm, Gp, Gp)
@@ -303,8 +310,48 @@ struct EmitterExplicitT {
   //!
   //! \{
 
-  //! Emits `bclr 20, 0, 0` (branch unconditionally to the address in the link register).
+  //! Emits `bcctr 20, 0, 0` (branches unconditionally to the address in the count register).
+  inline Error bctr() { return bcctr(Imm(20), Imm(0), Imm(0)); }
+  //! Emits `bcctrl 20, 0, 0` (calls the address in the count register).
+  inline Error bctrl() { return bcctrl(Imm(20), Imm(0), Imm(0)); }
+
+  //! Emits `bc 12, cr0.eq, target` (branches if equal).
+  inline Error beq(const Label& target) { return bc(Imm(12), regs::cr0.eq(), target); }
+  //! Emits `bc 12, cr.eq, target` (branches if equal).
+  inline Error beq(const Cr& cr, const Label& target) { return bc(Imm(12), cr.eq(), target); }
+  //! Emits `bc 4, cr0.lt, target` (branches if greater than or equal).
+  inline Error bge(const Label& target) { return bc(Imm(4), regs::cr0.lt(), target); }
+  //! Emits `bc 4, cr.lt, target` (branches if greater than or equal).
+  inline Error bge(const Cr& cr, const Label& target) { return bc(Imm(4), cr.lt(), target); }
+  //! Emits `bc 12, cr0.gt, target` (branches if greater than).
+  inline Error bgt(const Label& target) { return bc(Imm(12), regs::cr0.gt(), target); }
+  //! Emits `bc 12, cr.gt, target` (branches if greater than).
+  inline Error bgt(const Cr& cr, const Label& target) { return bc(Imm(12), cr.gt(), target); }
+  //! Emits `bc 4, cr0.gt, target` (branches if less than or equal).
+  inline Error ble(const Label& target) { return bc(Imm(4), regs::cr0.gt(), target); }
+  //! Emits `bc 4, cr.gt, target` (branches if less than or equal).
+  inline Error ble(const Cr& cr, const Label& target) { return bc(Imm(4), cr.gt(), target); }
+  //! Emits `bc 12, cr0.lt, target` (branches if less than).
+  inline Error blt(const Label& target) { return bc(Imm(12), regs::cr0.lt(), target); }
+  //! Emits `bc 12, cr.lt, target` (branches if less than).
+  inline Error blt(const Cr& cr, const Label& target) { return bc(Imm(12), cr.lt(), target); }
+  //! Emits `bc 4, cr0.eq, target` (branches if not equal).
+  inline Error bne(const Label& target) { return bc(Imm(4), regs::cr0.eq(), target); }
+  //! Emits `bc 4, cr.eq, target` (branches if not equal).
+  inline Error bne(const Cr& cr, const Label& target) { return bc(Imm(4), cr.eq(), target); }
+  //! Emits `bc 4, cr0.so, target` (branches if not summary overflow).
+  inline Error bns(const Label& target) { return bc(Imm(4), regs::cr0.so(), target); }
+  //! Emits `bc 4, cr.so, target` (branches if not summary overflow).
+  inline Error bns(const Cr& cr, const Label& target) { return bc(Imm(4), cr.so(), target); }
+  //! Emits `bc 12, cr0.so, target` (branches if summary overflow).
+  inline Error bso(const Label& target) { return bc(Imm(12), regs::cr0.so(), target); }
+  //! Emits `bc 12, cr.so, target` (branches if summary overflow).
+  inline Error bso(const Cr& cr, const Label& target) { return bc(Imm(12), cr.so(), target); }
+
+  //! Emits `bclr 20, 0, 0` (branches unconditionally to the address in the link register).
   inline Error blr() { return bclr(Imm(20), Imm(0), Imm(0)); }
+  //! Emits `bclrl 20, 0, 0` (calls the address in the link register).
+  inline Error blrl() { return bclrl(Imm(20), Imm(0), Imm(0)); }
 
   //! Emits `rldicl ra, rs, 0, n` (clears the `n` most significant bits).
   inline Error clrldi(const Gp& ra, const Gp& rs, uint32_t n) { return rldicl(ra, rs, Imm(0), Imm(n)); }

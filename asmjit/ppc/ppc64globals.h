@@ -58,7 +58,14 @@ namespace Inst {
     kIdAndc_rc,                          //!< Instruction 'andc.'.
     kIdAndi_rc,                          //!< Instruction 'andi.'.
     kIdAndis_rc,                         //!< Instruction 'andis.'.
+    kIdB,                                //!< Instruction 'b'.
+    kIdBc,                               //!< Instruction 'bc'.
+    kIdBcctr,                            //!< Instruction 'bcctr'.
+    kIdBcctrl,                           //!< Instruction 'bcctrl'.
+    kIdBcl,                              //!< Instruction 'bcl'.
     kIdBclr,                             //!< Instruction 'bclr'.
+    kIdBclrl,                            //!< Instruction 'bclrl'.
+    kIdBl,                               //!< Instruction 'bl'.
     kIdCmp,                              //!< Instruction 'cmp'.
     kIdCmpi,                             //!< Instruction 'cmpi'.
     kIdCmpl,                             //!< Instruction 'cmpl'.

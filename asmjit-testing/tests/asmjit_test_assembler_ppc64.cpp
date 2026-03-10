@@ -22,6 +22,54 @@ using namespace asmjit;
 #define FAIL_INSTRUCTION(ERROR, ...) \
   tester.test_invalid_instruction(#__VA_ARGS__, ERROR, tester.assembler.__VA_ARGS__)
 
+// Tests a sequence of instructions, which is what instructions that use labels require.
+template<typename Fn>
+static bool test_sequence(AssemblerTester<ppc::Assembler>& tester, const char* s, const char* expected_opcode, Fn&& fn) noexcept {
+  return tester.test_valid_instruction(s, expected_opcode, fn(tester.assembler));
+}
+
+// Tests a single instruction word of a sequence that is too long to be compared as a whole.
+template<typename Fn>
+static bool test_word_at(AssemblerTester<ppc::Assembler>& tester, const char* s, size_t offset, const char* expected_opcode, Fn&& fn) noexcept {
+  Error err = fn(tester.assembler);
+  Section* text = tester.code.text_section();
+
+  String encoded_opcode;
+  if (err == Error::kOk && offset + 4u <= text->buffer_size()) {
+    encoded_opcode.append_hex(text->data() + offset, 4);
+  }
+
+  tester.count++;
+  bool ok = err == Error::kOk && encoded_opcode == expected_opcode;
+
+  if (ok) {
+    tester.passed++;
+    if (tester.settings.verbose) {
+      printf("  OK [%s] <- %s\n", encoded_opcode.data(), s);
+    }
+  }
+  else {
+    printf("  !! [%s] <- %s <%s>\n"
+           "     [%s] (Expected)\n", encoded_opcode.data(), s, DebugUtils::error_as_string(err), expected_opcode);
+  }
+
+  tester.prepare();
+  return ok;
+}
+
+template<typename Fn>
+static bool test_invalid_sequence(AssemblerTester<ppc::Assembler>& tester, const char* s, Error expected_error, Fn&& fn) noexcept {
+  return tester.test_invalid_instruction(s, expected_error, fn(tester.assembler));
+}
+
+// Emits `count` nops.
+static Error emit_nops(ppc::Assembler& a, size_t count) noexcept {
+  for (size_t i = 0; i < count; i++) {
+    ASMJIT_PROPAGATE(a.nop());
+  }
+  return Error::kOk;
+}
+
 // Expected bytes were produced by GNU assembler (`as -mpower9 -mlittle`).
 static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assembler>& tester) noexcept {
   using namespace ppc;
@@ -72,9 +120,16 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("0100E073", andi_rc(r0, r31, 1));
   TEST_INSTRUCTION("FFFF8374", andis_rc(r3, r4, 65535));
   TEST_INSTRUCTION("0100E077", andis_rc(r0, r31, 1));
+  TEST_INSTRUCTION("2004804E", bcctr(20, 0, 0));
+  TEST_INSTRUCTION("2004824D", bcctr(12, 2, 0));
+  TEST_INSTRUCTION("200C9E4C", bcctr(4, 30, 1));
+  TEST_INSTRUCTION("2104804E", bcctrl(20, 0, 0));
+  TEST_INSTRUCTION("2104824D", bcctrl(12, 2, 0));
   TEST_INSTRUCTION("2000804E", bclr(20, 0, 0));
   TEST_INSTRUCTION("2000824D", bclr(12, 2, 0));
   TEST_INSTRUCTION("20089E4C", bclr(4, 30, 1));
+  TEST_INSTRUCTION("2100804E", bclrl(20, 0, 0));
+  TEST_INSTRUCTION("2100824D", bclrl(12, 2, 0));
   TEST_INSTRUCTION("0020237C", cmp(cr0, 1, r3, r4));
   TEST_INSTRUCTION("00009F7F", cmp(cr7, 0, r31, r0));
   TEST_INSTRUCTION("00F8A07C", cmp(cr1, 1, r0, r31));
@@ -523,7 +578,10 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
 static void ASMJIT_NOINLINE test_ppc64_assembler_extended(AssemblerTester<ppc::Assembler>& tester) noexcept {
   using namespace ppc;
 
+  TEST_INSTRUCTION("2004804E", bctr());
+  TEST_INSTRUCTION("2104804E", bctrl());
   TEST_INSTRUCTION("2000804E", blr());
+  TEST_INSTRUCTION("2100804E", blrl());
   TEST_INSTRUCTION("20008378", clrldi(r3, r4, 32));
   TEST_INSTRUCTION("3E048354", clrlwi(r3, r4, 16));
   TEST_INSTRUCTION("64078378", clrrdi(r3, r4, 2));
@@ -568,6 +626,86 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_extended(AssemblerTester<ppc::A
   TEST_INSTRUCTION("5120657C", sub_rc(r3, r4, r5));
   TEST_INSTRUCTION("5024657C", subo(r3, r4, r5));
   TEST_INSTRUCTION("5124657C", subo_rc(r3, r4, r5));
+}
+
+static void ASMJIT_NOINLINE test_ppc64_assembler_rel(AssemblerTester<ppc::Assembler>& tester) noexcept {
+  using namespace ppc;
+
+  test_sequence(tester, "branches to a bound label", "00000060FCFFFF4BF9FFFF4BF4FF8241F1FF9E40", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(a.nop());
+    ASMJIT_PROPAGATE(a.b(target));
+    ASMJIT_PROPAGATE(a.bl(target));
+    ASMJIT_PROPAGATE(a.bc(12, 2, target));
+    return a.bcl(4, 30, target);
+  });
+
+  test_sequence(tester, "branches to a label bound later", "14000048110000480C00824109009E4000000060", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.b(target));
+    ASMJIT_PROPAGATE(a.bl(target));
+    ASMJIT_PROPAGATE(a.bc(12, 2, target));
+    ASMJIT_PROPAGATE(a.bcl(4, 30, target));
+    ASMJIT_PROPAGATE(a.nop());
+    return a.bind(target);
+  });
+
+  test_sequence(tester, "conditional branch extended mnemonics",
+    "400082413C009E413800824034009E40300080412C009C412800804024009C40"
+    "200081411C009D411800814014009D40100083410C009F410800834004009F40", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.beq(target));
+    ASMJIT_PROPAGATE(a.beq(cr7, target));
+    ASMJIT_PROPAGATE(a.bne(target));
+    ASMJIT_PROPAGATE(a.bne(cr7, target));
+    ASMJIT_PROPAGATE(a.blt(target));
+    ASMJIT_PROPAGATE(a.blt(cr7, target));
+    ASMJIT_PROPAGATE(a.bge(target));
+    ASMJIT_PROPAGATE(a.bge(cr7, target));
+    ASMJIT_PROPAGATE(a.bgt(target));
+    ASMJIT_PROPAGATE(a.bgt(cr7, target));
+    ASMJIT_PROPAGATE(a.ble(target));
+    ASMJIT_PROPAGATE(a.ble(cr7, target));
+    ASMJIT_PROPAGATE(a.bso(target));
+    ASMJIT_PROPAGATE(a.bso(cr7, target));
+    ASMJIT_PROPAGATE(a.bns(target));
+    ASMJIT_PROPAGATE(a.bns(cr7, target));
+    return a.bind(target);
+  });
+
+  // A conditional branch reaches from -32768 to +32764 bytes.
+  test_word_at(tester, "bc to a label 32768 bytes back", 32768, "00808241", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8192));
+    return a.bc(12, 2, target);
+  });
+
+  test_word_at(tester, "bc to a label 32764 bytes ahead", 0, "FC7F8241", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bc(12, 2, target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8190));
+    return a.bind(target);
+  });
+
+  test_invalid_sequence(tester, "bc to a label 32772 bytes back", Error::kInvalidDisplacement, [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8193));
+    return a.bc(12, 2, target);
+  });
+
+  test_invalid_sequence(tester, "bc to a label 32768 bytes ahead", Error::kInvalidDisplacement, [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bc(12, 2, target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8191));
+    return a.bind(target);
+  });
+
+  FAIL_INSTRUCTION(Error::kInvalidLabel, b(Label(1234)));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, bc(32, 0, tester.L0));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, bc(12, 32, tester.L0));
 }
 
 static void ASMJIT_NOINLINE test_ppc64_assembler_invalid(AssemblerTester<ppc::Assembler>& tester) noexcept {
@@ -674,6 +812,26 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_big_endian(AssemblerTester<ppc:
   TEST_INSTRUCTION("786407C6", sldi(r4, r3, 32));
   TEST_INSTRUCTION("F8010010", std(r0, ptr(r1, 16)));
   TEST_INSTRUCTION("F821FFA1", stdu(r1, ptr(r1, -96)));
+
+  test_sequence(tester, "branches to a bound label", "600000004BFFFFFC4BFFFFF94182FFF4409EFFF1", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(a.nop());
+    ASMJIT_PROPAGATE(a.b(target));
+    ASMJIT_PROPAGATE(a.bl(target));
+    ASMJIT_PROPAGATE(a.bc(12, 2, target));
+    return a.bcl(4, 30, target);
+  });
+
+  test_sequence(tester, "branches to a label bound later", "48000014480000114182000C409E000960000000", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.b(target));
+    ASMJIT_PROPAGATE(a.bl(target));
+    ASMJIT_PROPAGATE(a.bc(12, 2, target));
+    ASMJIT_PROPAGATE(a.bcl(4, 30, target));
+    ASMJIT_PROPAGATE(a.nop());
+    return a.bind(target);
+  });
 }
 
 bool test_ppc64_assembler(const TestSettings& settings) noexcept {
@@ -684,6 +842,7 @@ bool test_ppc64_assembler(const TestSettings& settings) noexcept {
 
   test_ppc64_assembler_base(tester_le);
   test_ppc64_assembler_extended(tester_le);
+  test_ppc64_assembler_rel(tester_le);
   test_ppc64_assembler_invalid(tester_le);
 
   tester_le.print_summary();
