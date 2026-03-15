@@ -34,6 +34,8 @@ enum EncodingId : uint32_t {
   kEncodingRtRaSiNoR0,
   //! `inst RT, SI` - SI is a signed 16-bit immediate.
   kEncodingRtSi,
+  //! `inst RT, D` - D is a signed 16-bit immediate that is split into three fields.
+  kEncodingRtDx,
   //! `inst RA, RS, RB` - three general purpose registers, the destination is RA.
   kEncodingRaRsRb,
   //! `inst RA, RS` - two general purpose registers, the destination is RA.

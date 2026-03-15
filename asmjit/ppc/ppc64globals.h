@@ -48,6 +48,7 @@ namespace Inst {
     kIdAddmeo_rc,                        //!< Instruction 'addmeo.'.
     kIdAddo,                             //!< Instruction 'addo'.
     kIdAddo_rc,                          //!< Instruction 'addo.'.
+    kIdAddpcis,                          //!< Instruction 'addpcis'.
     kIdAddze,                            //!< Instruction 'addze'.
     kIdAddze_rc,                         //!< Instruction 'addze.'.
     kIdAddzeo,                           //!< Instruction 'addzeo'.

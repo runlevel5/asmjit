@@ -184,6 +184,50 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
         goto EmitOp;
       }
 
+      // `addi RT, RA, label` - the immediate is the distance from this instruction to the label.
+      if (isign4 == ENC_OPS3(Reg, Reg, Label) && inst_id == Inst::kIdAddi) {
+        if (!is_gp64(o0) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id()) || o1.id() == 0u) {
+          goto InvalidPhysId;
+        }
+
+        opcode |= (o0.id() << 21) | (o1.id() << 16);
+
+        rel_op = &o2;
+        offset_format.reset_to_imm_value(OffsetType::kSignedOffset, 4, 0, 16, 0);
+        goto EmitOp_Rel;
+      }
+
+      break;
+    }
+
+    case InstDB::kEncodingRtDx: {
+      if (isign4 == ENC_OPS2(Reg, Imm)) {
+        if (!is_gp64(o0)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id())) {
+          goto InvalidPhysId;
+        }
+
+        int64_t d = o1.as<Imm>().value();
+        if (!Support::is_int_n<16>(d)) {
+          goto InvalidImmediate;
+        }
+
+        // The immediate is stored as d0 (10 most significant bits), d1 (5 bits), and d2 (the least significant bit).
+        uint32_t d0 = (uint32_t(d) >> 6) & 0x3FFu;
+        uint32_t d1 = (uint32_t(d) >> 1) & 0x1Fu;
+        uint32_t d2 = uint32_t(d) & 0x1u;
+
+        opcode |= (o0.id() << 21) | (d1 << 16) | (d0 << 6) | d2;
+        goto EmitOp;
+      }
+
       break;
     }
 
@@ -463,6 +507,42 @@ Error Assembler::_emit(InstId inst_id, const Operand_& o0, const Operand_& o1, c
         }
 
         goto EmitOp;
+      }
+
+      // `inst RT, RA, label` - the displacement is the distance from this instruction to the label.
+      if (isign4 == ENC_OPS3(Reg, Reg, Label)) {
+        uint32_t encoding = inst_info->_encoding;
+
+        bool is_fp = encoding == InstDB::kEncodingFtMemD;
+        bool is_ds = encoding == InstDB::kEncodingRtMemDs;
+
+        if (!is_fp && !is_ds && encoding != InstDB::kEncodingRtMemD) {
+          goto InvalidInstruction;
+        }
+
+        if ((is_fp ? !o0.as<Reg>().is_vec64() : !is_gp64(o0)) || !is_gp64(o1)) {
+          goto InvalidInstruction;
+        }
+
+        if (!is_phys_id(o0.id(), o1.id())) {
+          goto InvalidPhysId;
+        }
+
+        // R0 used as a base would be read as zero and not as a register.
+        if (o1.id() == 0u) {
+          goto InvalidAddress;
+        }
+
+        opcode |= (o0.id() << 21) | (o1.id() << 16);
+        rel_op = &o2;
+
+        if (is_ds) {
+          offset_format.reset_to_imm_value(OffsetType::kSignedOffset, 4, 2, 14, 2);
+        }
+        else {
+          offset_format.reset_to_imm_value(OffsetType::kSignedOffset, 4, 0, 16, 0);
+        }
+        goto EmitOp_Rel;
       }
 
       break;

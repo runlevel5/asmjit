@@ -72,6 +72,7 @@ struct EmitterExplicitT {
   ASMJIT_INST_2x(addmeo_rc, Addmeo_rc, Gp, Gp)
   ASMJIT_INST_3x(addo, Addo, Gp, Gp, Gp)
   ASMJIT_INST_3x(addo_rc, Addo_rc, Gp, Gp, Gp)
+  ASMJIT_INST_2x(addpcis, Addpcis, Gp, Imm)
   ASMJIT_INST_2x(addze, Addze, Gp, Gp)
   ASMJIT_INST_2x(addze_rc, Addze_rc, Gp, Gp)
   ASMJIT_INST_2x(addzeo, Addzeo, Gp, Gp)
@@ -304,6 +305,28 @@ struct EmitterExplicitT {
 
   //! \}
 
+  //! \name Label Relative Addressing
+  //!
+  //! These take a label instead of an immediate value or a displacement, and use the distance from the instruction
+  //! itself to the label, which must fit into a signed 16-bit value. They are designed to be used with a base
+  //! register that holds the address of the instruction, which `lnia` placed right before it provides:
+  //!
+  //! ```
+  //! a.lnia(r4);              // r4 = address of the next instruction.
+  //! a.ld(r3, r4, literal);   // r3 = 64-bit value at `literal`.
+  //! ```
+  //!
+  //! \{
+
+  //! Emits `addi rt, ra, label - .` (`rt` is the address of `label` if `ra` is the address of this instruction).
+  inline Error addi(const Gp& rt, const Gp& ra, const Label& label) { return _emitter()->_emitI(Inst::kIdAddi, rt, ra, label); }
+  //! Emits `ld rt, (label - .)(ra)`, the distance to the label must be a multiple of 4.
+  inline Error ld(const Gp& rt, const Gp& ra, const Label& label) { return _emitter()->_emitI(Inst::kIdLd, rt, ra, label); }
+  //! Emits `lfd frt, (label - .)(ra)`.
+  inline Error lfd(const Vec& frt, const Gp& ra, const Label& label) { return _emitter()->_emitI(Inst::kIdLfd, frt, ra, label); }
+
+  //! \}
+
   //! \name Extended Mnemonics
   //!
   //! Each of these emits the base instruction it's an alias of.
@@ -401,6 +424,9 @@ struct EmitterExplicitT {
   inline Error crnot(const Imm& bt, const Imm& ba) { return crnor(bt, ba, ba); }
   //! Emits `creqv bt, bt, bt` (sets the condition register bit).
   inline Error crset(const Imm& bt) { return creqv(bt, bt, bt); }
+
+  //! Emits `addpcis rt, 0` (`rt` is the address of the next instruction).
+  inline Error lnia(const Gp& rt) { return addpcis(rt, Imm(0)); }
 
   //! Emits `mfspr rt, CTR`.
   inline Error mfctr(const Gp& rt) { return mfspr(rt, Imm(SPR::kCTR)); }

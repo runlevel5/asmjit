@@ -105,6 +105,12 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("D505C77C", addmeo_rc(r6, r7));
   TEST_INSTRUCTION("1446C77C", addo(r6, r7, r8));
   TEST_INSTRUCTION("1546C77C", addo_rc(r6, r7, r8));
+  TEST_INSTRUCTION("0400604C", addpcis(r3, 0));
+  TEST_INSTRUCTION("0480E04F", addpcis(r31, -32768));
+  TEST_INSTRUCTION("C57F9F4C", addpcis(r4, 32767));
+  TEST_INSTRUCTION("0500A04C", addpcis(r5, 1));
+  TEST_INSTRUCTION("0412DA4C", addpcis(r6, 4660));
+  TEST_INSTRUCTION("C4FFFF4C", addpcis(r7, -2));
   TEST_INSTRUCTION("9401647C", addze(r3, r4));
   TEST_INSTRUCTION("9401E07F", addze(r31, r0));
   TEST_INSTRUCTION("9501C77C", addze_rc(r6, r7));
@@ -607,6 +613,7 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_extended(AssemblerTester<ppc::A
   TEST_INSTRUCTION("4210C24C", crnot(cr1.eq(), cr0.eq()));
   TEST_INSTRUCTION("4232C64C", crset(cr1.eq()));
   TEST_INSTRUCTION("1E28647C", isel(r3, r4, r5, cr0.lt()));
+  TEST_INSTRUCTION("0400604C", lnia(r3));
   TEST_INSTRUCTION("A602897D", mfctr(r12));
   TEST_INSTRUCTION("A602087C", mflr(r0));
   TEST_INSTRUCTION("A603897D", mtctr(r12));
@@ -703,6 +710,89 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_rel(AssemblerTester<ppc::Assemb
     return a.bind(target);
   });
 
+  test_sequence(tester, "label relative addressing",
+    "00000060FCFF6438F8FF64E8F4FF24C8100064380C0064E8080024C800000060", [](Assembler& a) {
+    Label before = a.new_label();
+    Label after = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(before));
+    ASMJIT_PROPAGATE(a.nop());
+    ASMJIT_PROPAGATE(a.addi(r3, r4, before));
+    ASMJIT_PROPAGATE(a.ld(r3, r4, before));
+    ASMJIT_PROPAGATE(a.lfd(f1, r4, before));
+    ASMJIT_PROPAGATE(a.addi(r3, r4, after));
+    ASMJIT_PROPAGATE(a.ld(r3, r4, after));
+    ASMJIT_PROPAGATE(a.lfd(f1, r4, after));
+    ASMJIT_PROPAGATE(a.nop());
+    return a.bind(after);
+  });
+
+  // Label relative addressing reaches from -32768 to +32767 bytes.
+  test_word_at(tester, "addi to a label 32768 bytes back", 32768, "00806438", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8192));
+    return a.addi(r3, r4, target);
+  });
+
+  test_word_at(tester, "ld from a label 32768 bytes back", 32768, "008064E8", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8192));
+    return a.ld(r3, r4, target);
+  });
+
+  test_word_at(tester, "ld from a label 32764 bytes ahead", 0, "FC7F64E8", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.ld(r3, r4, target));
+    ASMJIT_PROPAGATE(a.addi(r3, r4, target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8189));
+    return a.bind(target);
+  });
+
+  test_word_at(tester, "addi to a label 32760 bytes ahead", 4, "F87F6438", [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.ld(r3, r4, target));
+    ASMJIT_PROPAGATE(a.addi(r3, r4, target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8189));
+    return a.bind(target);
+  });
+
+  test_invalid_sequence(tester, "addi to a label 32772 bytes back", Error::kInvalidDisplacement, [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8193));
+    return a.addi(r3, r4, target);
+  });
+
+  test_invalid_sequence(tester, "ld from a label 32768 bytes ahead", Error::kInvalidDisplacement, [](Assembler& a) {
+    Label target = a.new_label();
+    ASMJIT_PROPAGATE(a.ld(r3, r4, target));
+    ASMJIT_PROPAGATE(emit_nops(a, 8191));
+    return a.bind(target);
+  });
+
+  // The distance doesn't have to be a multiple of 4 in general, but it has to be if the instruction is `ld`.
+  test_word_at(tester, "addi to a label that is not aligned", 4, "FEFF6438", [](Assembler& a) {
+    Label target = a.new_label();
+    uint8_t zeros[2] {};
+    ASMJIT_PROPAGATE(a.embed(zeros, 2));
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(a.embed(zeros, 2));
+    return a.addi(r3, r4, target);
+  });
+
+  test_invalid_sequence(tester, "ld from a label that is not aligned", Error::kInvalidDisplacement, [](Assembler& a) {
+    Label target = a.new_label();
+    uint8_t zeros[2] {};
+    ASMJIT_PROPAGATE(a.embed(zeros, 2));
+    ASMJIT_PROPAGATE(a.bind(target));
+    ASMJIT_PROPAGATE(a.embed(zeros, 2));
+    return a.ld(r3, r4, target);
+  });
+
+  FAIL_INSTRUCTION(Error::kInvalidPhysId, addi(r3, r0, tester.L0));
+  FAIL_INSTRUCTION(Error::kInvalidAddress, ld(r3, r0, tester.L0));
+  FAIL_INSTRUCTION(Error::kInvalidImmediate, addpcis(r3, 32768));
   FAIL_INSTRUCTION(Error::kInvalidLabel, b(Label(1234)));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, bc(32, 0, tester.L0));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, bc(12, 32, tester.L0));
@@ -821,6 +911,22 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_big_endian(AssemblerTester<ppc:
     ASMJIT_PROPAGATE(a.bl(target));
     ASMJIT_PROPAGATE(a.bc(12, 2, target));
     return a.bcl(4, 30, target);
+  });
+
+  test_sequence(tester, "label relative addressing",
+    "600000003864FFFCE864FFF8C824FFF438640010E864000CC824000860000000", [](Assembler& a) {
+    Label before = a.new_label();
+    Label after = a.new_label();
+    ASMJIT_PROPAGATE(a.bind(before));
+    ASMJIT_PROPAGATE(a.nop());
+    ASMJIT_PROPAGATE(a.addi(r3, r4, before));
+    ASMJIT_PROPAGATE(a.ld(r3, r4, before));
+    ASMJIT_PROPAGATE(a.lfd(f1, r4, before));
+    ASMJIT_PROPAGATE(a.addi(r3, r4, after));
+    ASMJIT_PROPAGATE(a.ld(r3, r4, after));
+    ASMJIT_PROPAGATE(a.lfd(f1, r4, after));
+    ASMJIT_PROPAGATE(a.nop());
+    return a.bind(after);
   });
 
   test_sequence(tester, "branches to a label bound later", "48000014480000114182000C409E000960000000", [](Assembler& a) {

@@ -43,6 +43,7 @@ namespace InstDB {
   X(Addmeo_rc   , "addmeo."    , 0x7C0005D5u, RtRa        )  \
   X(Addo        , "addo"       , 0x7C000614u, RtRaRb      )  \
   X(Addo_rc     , "addo."      , 0x7C000615u, RtRaRb      )  \
+  X(Addpcis     , "addpcis"    , 0x4C000004u, RtDx        )  \
   X(Addze       , "addze"      , 0x7C000194u, RtRa        )  \
   X(Addze_rc    , "addze."     , 0x7C000195u, RtRa        )  \
   X(Addzeo      , "addzeo"     , 0x7C000594u, RtRa        )  \
