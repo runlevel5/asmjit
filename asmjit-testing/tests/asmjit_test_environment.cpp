@@ -13,6 +13,10 @@
   #include <asmjit/a64.h>
 #endif
 
+#if !defined(ASMJIT_NO_PPC64) && ASMJIT_ARCH_PPC == 64
+  #include <asmjit/ppc64.h>
+#endif
+
 #include <asmjit-testing/commons/asmjitutils.h>
 
 using namespace asmjit;
@@ -54,6 +58,17 @@ static void emit_void_function(CodeHolder& code) noexcept {
 static void emit_void_function(CodeHolder& code) noexcept {
   a64::Assembler a(&code);
   a.ret(a64::x30);
+}
+#endif
+
+// The ELFv1 ABI calls a function through a function descriptor, so the address of the code cannot be used as
+// a function pointer there.
+#if !defined(ASMJIT_NO_PPC64) && ASMJIT_ARCH_PPC == 64 && defined(_CALL_ELF) && _CALL_ELF == 2
+#define TEST_ENVIRONMENT_HAS_JIT
+
+static void emit_void_function(CodeHolder& code) noexcept {
+  ppc::Assembler a(&code);
+  a.blr();
 }
 #endif
 
