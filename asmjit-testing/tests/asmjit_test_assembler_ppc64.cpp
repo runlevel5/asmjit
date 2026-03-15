@@ -215,6 +215,39 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("3507E67C", extsh_rc(r6, r7));
   TEST_INSTRUCTION("B407837C", extsw(r3, r4));
   TEST_INSTRUCTION("B4071F7C", extsw(r31, r0));
+  TEST_INSTRUCTION("101220FC", fabs(f1, f2));
+  TEST_INSTRUCTION("1002E0FF", fabs(f31, f0));
+  TEST_INSTRUCTION("10FA00FC", fabs(f0, f31));
+  TEST_INSTRUCTION("2A1822FC", fadd(f1, f2, f3));
+  TEST_INSTRUCTION("2AF8E0FF", fadd(f31, f0, f31));
+  TEST_INSTRUCTION("2A081FFC", fadd(f0, f31, f1));
+  TEST_INSTRUCTION("9C1620FC", fcfid(f1, f2));
+  TEST_INSTRUCTION("9C06E0FF", fcfid(f31, f0));
+  TEST_INSTRUCTION("9CFE00FC", fcfid(f0, f31));
+  TEST_INSTRUCTION("401001FC", fcmpo(cr0, f1, f2));
+  TEST_INSTRUCTION("40009FFF", fcmpo(cr7, f31, f0));
+  TEST_INSTRUCTION("40F880FC", fcmpo(cr1, f0, f31));
+  TEST_INSTRUCTION("001001FC", fcmpu(cr0, f1, f2));
+  TEST_INSTRUCTION("00009FFF", fcmpu(cr7, f31, f0));
+  TEST_INSTRUCTION("00F880FC", fcmpu(cr1, f0, f31));
+  TEST_INSTRUCTION("5E1620FC", fctidz(f1, f2));
+  TEST_INSTRUCTION("5E06E0FF", fctidz(f31, f0));
+  TEST_INSTRUCTION("5EFE00FC", fctidz(f0, f31));
+  TEST_INSTRUCTION("241822FC", fdiv(f1, f2, f3));
+  TEST_INSTRUCTION("24F8E0FF", fdiv(f31, f0, f31));
+  TEST_INSTRUCTION("24081FFC", fdiv(f0, f31, f1));
+  TEST_INSTRUCTION("901020FC", fmr(f1, f2));
+  TEST_INSTRUCTION("9000E0FF", fmr(f31, f0));
+  TEST_INSTRUCTION("90F800FC", fmr(f0, f31));
+  TEST_INSTRUCTION("F20022FC", fmul(f1, f2, f3));
+  TEST_INSTRUCTION("F207E0FF", fmul(f31, f0, f31));
+  TEST_INSTRUCTION("72001FFC", fmul(f0, f31, f1));
+  TEST_INSTRUCTION("501020FC", fneg(f1, f2));
+  TEST_INSTRUCTION("5000E0FF", fneg(f31, f0));
+  TEST_INSTRUCTION("50F800FC", fneg(f0, f31));
+  TEST_INSTRUCTION("281822FC", fsub(f1, f2, f3));
+  TEST_INSTRUCTION("28F8E0FF", fsub(f31, f0, f31));
+  TEST_INSTRUCTION("28081FFC", fsub(f0, f31, f1));
   TEST_INSTRUCTION("B507E67C", extsw_rc(r6, r7));
   TEST_INSTRUCTION("9E28647C", isel(r3, r4, r5, 2));
   TEST_INSTRUCTION("DE07E17F", isel(r31, r1, r0, 31));
@@ -877,6 +910,7 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_invalid(AssemblerTester<ppc::As
   // There are only 8 condition register fields.
   FAIL_INSTRUCTION(Error::kInvalidPhysId, cmpd(cr(8), r3, r4));
   FAIL_INSTRUCTION(Error::kInvalidPhysId, mcrf(cr0, cr(8)));
+  FAIL_INSTRUCTION(Error::kInvalidPhysId, fcmpu(cr(8), f1, f2));
 
   // Floating point register used as a general purpose register.
   FAIL_INSTRUCTION(Error::kInvalidAddress, ld(r3, Mem(f4, 8)));
