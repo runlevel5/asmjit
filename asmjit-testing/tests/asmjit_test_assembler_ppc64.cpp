@@ -28,6 +28,39 @@ static bool test_sequence(AssemblerTester<ppc::Assembler>& tester, const char* s
   return tester.test_valid_instruction(s, expected_opcode, fn(tester.assembler));
 }
 
+// Tests a sequence that embeds addresses of labels, which are only known after the code has been relocated.
+template<typename Fn>
+static bool test_relocated_sequence(AssemblerTester<ppc::Assembler>& tester, const char* s, uint64_t base_address, const char* expected_opcode, Fn&& fn) noexcept {
+  Error err = fn(tester.assembler);
+
+  if (err == Error::kOk) {
+    err = tester.code.flatten();
+  }
+  if (err == Error::kOk) {
+    err = tester.code.resolve_cross_section_fixups();
+  }
+  if (err == Error::kOk) {
+    err = tester.code.relocate_to_base(base_address);
+  }
+
+  return tester.test_valid_instruction(s, expected_opcode, err);
+}
+
+// Embeds the addresses of two labels and the distance between them, the latter both as a relocation and as a value
+// that is already known when it's embedded.
+static Error emit_embedded_labels(ppc::Assembler& a) noexcept {
+  Label before = a.new_label();
+  Label after = a.new_label();
+
+  ASMJIT_PROPAGATE(a.bind(before));
+  ASMJIT_PROPAGATE(a.nop());
+  ASMJIT_PROPAGATE(a.embed_label(before, 8));
+  ASMJIT_PROPAGATE(a.embed_label(after, 8));
+  ASMJIT_PROPAGATE(a.embed_label_delta(after, before, 4));
+  ASMJIT_PROPAGATE(a.bind(after));
+  return a.embed_label_delta(after, before, 8);
+}
+
 // Tests a single instruction word of a sequence that is too long to be compared as a whole.
 template<typename Fn>
 static bool test_word_at(AssemblerTester<ppc::Assembler>& tester, const char* s, size_t offset, const char* expected_opcode, Fn&& fn) noexcept {
@@ -823,6 +856,9 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_rel(AssemblerTester<ppc::Assemb
     return a.ld(r3, r4, target);
   });
 
+  test_relocated_sequence(tester, "embedded label addresses and deltas", 0x1122334455660000u,
+    "000000600000665544332211180066554433221118000000" "1800000000000000", emit_embedded_labels);
+
   FAIL_INSTRUCTION(Error::kInvalidPhysId, addi(r3, r0, tester.L0));
   FAIL_INSTRUCTION(Error::kInvalidAddress, ld(r3, r0, tester.L0));
   FAIL_INSTRUCTION(Error::kInvalidImmediate, addpcis(r3, 32768));
@@ -972,6 +1008,9 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_big_endian(AssemblerTester<ppc:
     ASMJIT_PROPAGATE(a.nop());
     return a.bind(target);
   });
+
+  test_relocated_sequence(tester, "embedded label addresses and deltas", 0x1122334455660000u,
+    "600000001122334455660000112233445566001800000018" "0000000000000018", emit_embedded_labels);
 }
 
 bool test_ppc64_assembler(const TestSettings& settings) noexcept {
