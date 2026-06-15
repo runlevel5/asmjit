@@ -403,6 +403,9 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("8004807F", mcrxrx(cr7));
   TEST_INSTRUCTION("2600607C", mfcr(r3));
   TEST_INSTRUCTION("2600E07F", mfcr(r31));
+  TEST_INSTRUCTION("6600227C", mffprd(r2, f1));
+  TEST_INSTRUCTION("66001F7C", mffprd(r31, f0));
+  TEST_INSTRUCTION("6600E07F", mffprd(r0, f31));
   TEST_INSTRUCTION("A602687C", mfspr(r3, 8));
   TEST_INSTRUCTION("A6426C7C", mfspr(r3, 268));
   TEST_INSTRUCTION("122E647C", modsd(r3, r4, r5));
@@ -413,6 +416,9 @@ static void ASMJIT_NOINLINE test_ppc64_assembler_base(AssemblerTester<ppc::Assem
   TEST_INSTRUCTION("120AE07F", modud(r31, r0, r1));
   TEST_INSTRUCTION("162A647C", moduw(r3, r4, r5));
   TEST_INSTRUCTION("160AE07F", moduw(r31, r0, r1));
+  TEST_INSTRUCTION("6601227C", mtfprd(f1, r2));
+  TEST_INSTRUCTION("6601E07F", mtfprd(f31, r0));
+  TEST_INSTRUCTION("66011F7C", mtfprd(f0, r31));
   TEST_INSTRUCTION("A603687C", mtspr(8, r3));
   TEST_INSTRUCTION("A603897D", mtspr(9, r12));
   TEST_INSTRUCTION("9228647C", mulhd(r3, r4, r5));
